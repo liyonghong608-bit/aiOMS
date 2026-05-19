@@ -2,8 +2,30 @@
 <html>
 <head>
   <title>aiOMS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <h1>aiOMS 系统上线成功 🎉</h1>
+  <button onclick="testInsert()">Test DB</button>
+  <p id="result"></p>
+
+  <script>
+    const { createClient } = supabase;
+    const db = createClient(
+      "https://mqzrbekmtguhigtvqzay.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xenJiZWttdGd1aGlndHZxemF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjY4NTIsImV4cCI6MjA5NDc0Mjg1Mn0.jDnU5ntMvx6fufcfpDW-IpcFJnQqN6LTqvMQcrHfz7o"
+    );
+
+    async function testInsert() {
+      const { data, error } = await db
+        .from('test')
+        .insert([{ name: 'hello aiOMS' }])
+        .select();
+
+      document.getElementById('result').innerText = error
+        ? '❌ Error: ' + error.message
+        : '✅ Inserted! Row ID: ' + data[0].id;
+    }
+  </script>
 </body>
 </html>
