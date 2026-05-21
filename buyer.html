@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="dark" />
 <title>aiOMS · Buyer</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="shader-lines.js"></script>
 <link rel="stylesheet" href="colors_and_type.css" />
 <link rel="stylesheet" href="aioms.css" />
 <style>
@@ -44,6 +45,15 @@
 .sum-row { display: flex; justify-content: space-between; font-size: var(--fs-13); padding: var(--s-1) 0; color: var(--fg-muted); }
 .sum-row.total { font-family: var(--font-display); font-size: var(--fs-18); font-weight: 600; color: var(--fg); border-top: 1px solid var(--glass-border); margin-top: var(--s-2); padding-top: var(--s-3); }
 .sum-note { font-size: 11px; color: var(--fg-faint); margin: var(--s-2) 0 var(--s-4); line-height: 1.5; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3) var(--s-4); }
+.form-grid .fg textarea { width: 100%; padding: 10px 14px; font-family: var(--font-body); font-size: var(--fs-14); color: var(--fg); background: var(--glass-bg-2); border: 1px solid var(--glass-border); border-radius: var(--r-sm); outline: none; resize: vertical; }
+.form-grid .fg textarea:focus { border-color: var(--plasma-500); box-shadow: 0 0 0 3px rgba(139,92,255,0.18); }
+.app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3) var(--s-5); margin-top: var(--s-3); }
+.app-k { font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--fg-faint); margin-bottom: 2px; }
+.app-v { font-size: var(--fs-14); color: var(--fg); word-break: break-word; }
+@media (max-width: 720px) {
+  .form-grid, .app-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -59,6 +69,8 @@
       <div class="nav-item on" id="n-browse" onclick="nav('browse')"><span class="nav-ic">⊞</span> Browse</div>
       <div class="nav-item" id="n-cart" onclick="nav('cart')"><span class="nav-ic">▣</span> Cart <span class="nav-badge" id="cart-count" style="display:none"></span></div>
       <div class="nav-item" id="n-orders" onclick="nav('orders')"><span class="nav-ic">▤</span> My Orders</div>
+      <div class="nav-label" style="margin-top:var(--s-3)">Upgrade</div>
+      <div class="nav-item" id="n-supplier" onclick="nav('supplier')"><span class="nav-ic">↗</span> Become a Supplier</div>
     </nav>
     <div class="sb-foot"><div class="logout" onclick="doLogout()"><span class="nav-ic">⏻</span> Sign out</div></div>
   </aside>
@@ -67,12 +79,15 @@
     <div class="topbar"><h1 id="page-title">Browse Products</h1></div>
     <div class="content">
       <div class="page on" id="p-browse">
-        <div class="press-banner"><img src="assets/press-machine.svg" alt="aiOMS 活字 press machine"></div>
+        <div class="shader-banner" id="shader-banner"><div class="shader-banner-label">aiOMS</div></div>
         <div class="search-bar"><input id="search" placeholder="Search products…" oninput="filterProducts()"><select id="cat-filter" onchange="filterProducts()"><option value="">All Categories</option></select></div>
         <div class="products-grid" id="products-grid"><div class="loading"><div class="spin"></div></div></div>
       </div>
       <div class="page" id="p-cart"><div id="cart-view"></div></div>
       <div class="page" id="p-orders"><div id="orders-table"><div class="loading"><div class="spin"></div></div></div></div>
+      <div class="page" id="p-supplier">
+        <div id="supplier-app-view"><div class="loading"><div class="spin"></div></div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -168,9 +183,74 @@ function nav(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
   document.getElementById('p-'+page).classList.add('on'); document.getElementById('n-'+page).classList.add('on');
-  document.getElementById('page-title').textContent={browse:'Browse Products',cart:'My Cart',orders:'My Orders'}[page];
-  if(page==='cart')renderCart(); if(page==='orders')loadOrders();
+  document.getElementById('page-title').textContent={browse:'Browse Products',cart:'My Cart',orders:'My Orders',supplier:'Become a Supplier'}[page];
+  if(page==='cart')renderCart(); if(page==='orders')loadOrders(); if(page==='supplier')loadSupplierApp();
 }
+
+async function loadSupplierApp(){
+  const el=document.getElementById('supplier-app-view');
+  const {data,error}=await db.from('supplier_applications').select('*').eq('user_id',USER.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  if(error&&error.code!=='PGRST116'){ el.innerHTML=`<div class="panel"><p style="color:var(--supernova-300)">Could not load application status: ${error.message}</p><p style="margin-top:var(--s-2);font-size:11px;color:var(--fg-faint)">Make sure the <code>supplier_applications</code> table exists. See README or admin for SQL.</p></div>`; return; }
+  if(data){
+    const badges={ pending:'⏳ Pending review', approved:'✓ Approved — sign out and back in to access supplier features', rejected:'✕ Rejected' };
+    const color={ pending:'var(--corona-300, #fbbf24)', approved:'var(--quasar-300, #38d98a)', rejected:'var(--supernova-300, #ff4f6b)' };
+    el.innerHTML=`<div class="panel">
+      <h3>Supplier Application</h3>
+      <p style="margin:var(--s-3) 0; font-size:var(--fs-16); font-weight:600; color:${color[data.status]||'var(--fg)'};">${badges[data.status]||data.status}</p>
+      <div class="app-grid">
+        <div><div class="app-k">Company</div><div class="app-v">${data.company_name||'—'}</div></div>
+        <div><div class="app-k">Business address</div><div class="app-v">${data.business_address||'—'}</div></div>
+        <div><div class="app-k">Tax ID / License</div><div class="app-v">${data.tax_id||'—'}</div></div>
+        <div><div class="app-k">Phone</div><div class="app-v">${data.phone||'—'}</div></div>
+        <div><div class="app-k">Website</div><div class="app-v">${data.website||'—'}</div></div>
+        <div><div class="app-k">Years in business</div><div class="app-v">${data.years_in_business||'—'}</div></div>
+        <div style="grid-column:1/-1"><div class="app-k">Categories / products</div><div class="app-v">${data.categories||'—'}</div></div>
+        ${data.notes?`<div style="grid-column:1/-1"><div class="app-k">Reviewer notes</div><div class="app-v">${data.notes}</div></div>`:''}
+      </div>
+      <p style="margin-top:var(--s-4); font-size:11px; color:var(--fg-faint)">Submitted ${fmtDate?fmtDate(data.created_at):new Date(data.created_at).toLocaleString()}</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML=`<div class="panel">
+    <h3>Apply to become a Supplier</h3>
+    <p style="margin:var(--s-2) 0 var(--s-4); font-size:var(--fs-13); color:var(--fg-muted)">Provide a few business details. An admin will review and, once approved, your account will be upgraded with full supplier access (product listings, orders, margins).</p>
+    <div class="form-grid">
+      <div class="fg"><label>Company legal name *</label><input type="text" id="sa-co" placeholder="Acme Manufacturing Ltd."></div>
+      <div class="fg"><label>Tax ID / Business license *</label><input type="text" id="sa-tax" placeholder="91110000XXXXXXXXXX"></div>
+      <div class="fg"><label>Business address *</label><input type="text" id="sa-addr" placeholder="Street, City, Country"></div>
+      <div class="fg"><label>Phone *</label><input type="text" id="sa-phone" placeholder="+86 ..."></div>
+      <div class="fg"><label>Website</label><input type="text" id="sa-web" placeholder="https://example.com"></div>
+      <div class="fg"><label>Years in business</label><input type="number" id="sa-yrs" min="0" placeholder="5"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Product categories you want to sell *</label><textarea id="sa-cats" rows="3" placeholder="Industrial fasteners, packaging materials, ..."></textarea></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:var(--s-4)" id="sa-submit" onclick="submitSupplierApp()">Submit application</button>
+  </div>`;
+}
+
+async function submitSupplierApp(){
+  const v=id=>document.getElementById(id).value.trim();
+  const payload={
+    user_id: USER.id,
+    company_name: v('sa-co') || USER.company_name || null,
+    tax_id: v('sa-tax'),
+    business_address: v('sa-addr'),
+    phone: v('sa-phone'),
+    website: v('sa-web') || null,
+    years_in_business: parseInt(v('sa-yrs'))||null,
+    categories: v('sa-cats'),
+    status: 'pending'
+  };
+  if(!payload.company_name||!payload.tax_id||!payload.business_address||!payload.phone||!payload.categories){
+    toast('Please fill all required fields (*)', 'e'); return;
+  }
+  const btn=document.getElementById('sa-submit'); btn.disabled=true; btn.textContent='Submitting…';
+  const {error}=await db.from('supplier_applications').insert(payload);
+  btn.disabled=false; btn.textContent='Submit application';
+  if(error){ toast('Submit failed: '+error.message,'e'); return; }
+  toast('Application submitted — we’ll review and notify you.','s');
+  loadSupplierApp();
+}
+
 init();
 </script>
 </body>

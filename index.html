@@ -39,6 +39,7 @@
 .alert.err { background: rgba(255,79,107,0.14); color: var(--supernova-300); border: 1px solid rgba(255,79,107,0.3); }
 .alert.ok { background: rgba(56,217,138,0.14); color: var(--quasar-300); border: 1px solid rgba(56,217,138,0.3); }
 .spin-sm { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 7px; }
+.signup-note { margin-top: var(--s-3); font-size: 11px; color: var(--fg-faint); text-align: center; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -70,14 +71,8 @@
         <div class="fg"><label>Company</label><input type="text" id="sco" placeholder="Acme Corp"></div>
         <div class="fg"><label>Email</label><input type="email" id="semail" placeholder="you@company.com"></div>
         <div class="fg"><label>Password</label><input type="password" id="spass" placeholder="Min. 8 characters"></div>
-        <div class="fg">
-          <label>Account type</label>
-          <div class="roles">
-            <div class="role on" id="rb" onclick="setRole('buyer')"><div class="role-ic">🛒</div><div class="role-name">Buyer</div><div class="role-desc">Source & purchase</div></div>
-            <div class="role" id="rs" onclick="setRole('supplier')"><div class="role-ic">📦</div><div class="role-name">Supplier</div><div class="role-desc">List & sell</div></div>
-          </div>
-        </div>
         <button class="btn btn-primary btn-block" id="sbtn" onclick="doSignup()">Create account</button>
+        <div class="signup-note">All accounts start as Buyer. You can apply to become a Supplier from inside the app.</div>
       </div>
 
       <div class="tog" id="tl">New to aiOMS? <a onclick="sw('sign')">Create an account</a></div>
@@ -90,7 +85,6 @@
 const SU='https://mqzrbekmtguhigtvqzay.supabase.co';
 const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xenJiZWttdGd1aGlndHZxemF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjY4NTIsImV4cCI6MjA5NDc0Mjg1Mn0.jDnU5ntMvx6fufcfpDW-IpcFJnQqN6LTqvMQcrHfz7o';
 const db=supabase.createClient(SU,SK);
-let role='buyer';
 
 async function init(){
   const {data:{session}}=await db.auth.getSession();
@@ -104,7 +98,6 @@ async function go(uid){
   const map={supplier:'supplier.html',buyer:'buyer.html',admin:'admin.html'};
   location.href=map[p.role]||'buyer.html';
 }
-function setRole(r){ role=r; document.getElementById('rb').classList.toggle('on',r==='buyer'); document.getElementById('rs').classList.toggle('on',r==='supplier'); }
 function sw(v){
   document.getElementById('vlogin').style.display=v==='login'?'block':'none';
   document.getElementById('vsign').style.display=v==='sign'?'block':'none';
@@ -128,7 +121,7 @@ async function doSignup(){
   const email=document.getElementById('semail').value.trim(), pass=document.getElementById('spass').value;
   if(!name||!email||!pass){msg('Please fill all fields.');ld(btn,false);return;}
   if(pass.length<8){msg('Password must be at least 8 characters.');ld(btn,false);return;}
-  const {data,error}=await db.auth.signUp({ email,password:pass, options:{data:{full_name:name,company_name:co,role}} });
+  const {data,error}=await db.auth.signUp({ email,password:pass, options:{data:{full_name:name,company_name:co,role:'buyer'}} });
   if(error){msg(error.message);ld(btn,false);return;}
   msg('Account created! Redirecting…','ok');
   setTimeout(()=>go(data.user.id),1200);

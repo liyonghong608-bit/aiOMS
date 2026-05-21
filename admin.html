@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="dark" />
 <title>aiOMS · Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="shader-lines.js"></script>
 <link rel="stylesheet" href="colors_and_type.css" />
 <link rel="stylesheet" href="aioms.css" />
 </head>
@@ -25,6 +26,7 @@
       <div class="nav-item" id="n-users" onclick="nav('users')"><span class="nav-ic">◐</span> Users</div>
       <div class="nav-item" id="n-products" onclick="nav('products')"><span class="nav-ic">▦</span> Products</div>
       <div class="nav-item" id="n-margins" onclick="nav('margins')"><span class="nav-ic">％</span> Margins</div>
+      <div class="nav-item" id="n-applications" onclick="nav('applications')"><span class="nav-ic">↗</span> Applications <span class="nav-badge" id="apps-count" style="display:none"></span></div>
     </nav>
     <div class="sb-foot"><div class="logout" onclick="doLogout()"><span class="nav-ic">⏻</span> Sign out</div></div>
   </aside>
@@ -33,7 +35,7 @@
     <div class="topbar"><h1 id="page-title">Dashboard</h1><div id="topbar-actions"></div></div>
     <div class="content">
       <div class="page on" id="p-dashboard">
-        <div class="press-banner"><img src="assets/press-machine.svg" alt="aiOMS 活字 press machine"></div>
+        <div class="shader-banner" id="shader-banner"><div class="shader-banner-label">aiOMS · Admin</div></div>
         <div class="stats">
           <div class="stat glow-plasma" data-ic="$"><div class="stat-label">Total Revenue</div><div class="stat-val" id="s-rev">—</div><div class="stat-sub">all orders</div></div>
           <div class="stat glow-quasar" data-ic="↑"><div class="stat-label">Total Profit</div><div class="stat-val profit" id="s-profit">—</div><div class="stat-sub">after costs</div></div>
@@ -51,6 +53,7 @@
       <div class="page" id="p-orders"><div class="panel"><div class="panel-head"><h3>All Purchase Orders</h3><select id="order-filter" onchange="loadAllOrders()" class="btn" style="padding:6px 12px"><option value="">All Status</option><option value="submitted">Submitted</option><option value="processing">Processing</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div><div id="orders-table"><div class="loading"><div class="spin"></div></div></div></div></div>
       <div class="page" id="p-users"><div class="panel"><div class="panel-head"><h3>All Users</h3></div><div id="users-table"><div class="loading"><div class="spin"></div></div></div></div></div>
       <div class="page" id="p-products"><div class="panel"><div class="panel-head"><h3>All Products</h3></div><div id="products-table"><div class="loading"><div class="spin"></div></div></div></div></div>
+      <div class="page" id="p-applications"><div class="panel"><div class="panel-head"><h3>Supplier Applications</h3></div><div id="apps-table"><div class="loading"><div class="spin"></div></div></div></div></div>
       <div class="page" id="p-margins">
         <div class="panel"><div class="panel-head"><h3>Margin Rules</h3><button class="btn btn-primary" onclick="openMarginModal()">＋ Add Rule</button></div><div id="margins-table"><div class="loading"><div class="spin"></div></div></div></div>
         <div class="panel" style="padding:var(--s-4) var(--s-5);font-size:var(--fs-12);color:var(--fg-subtle)"><strong style="color:var(--fg-muted)">How margins work:</strong> Rules match by priority (highest wins). Buyer-specific beats product &gt; category &gt; default. The default rule (priority 0) applies when nothing more specific matches.</div>
@@ -87,14 +90,61 @@ async function init(){
   document.getElementById('boot').style.display='none';
   document.getElementById('app').style.display='flex';
   await loadCats(); await loadDashboard();
+  refreshAppsBadge().catch(()=>{});
 }
 async function loadCats(){ const {data}=await db.from('categories').select('*').order('name'); CATS=data||[]; document.getElementById('m-cat').innerHTML=CATS.map(c=>`<option value="${c.id}">${c.name}</option>`).join(''); }
 function nav(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
   document.getElementById('p-'+page).classList.add('on'); document.getElementById('n-'+page).classList.add('on');
-  document.getElementById('page-title').textContent={dashboard:'Dashboard',orders:'All Orders',users:'Users',products:'Products',margins:'Margin Rules'}[page];
-  if(page==='orders')loadAllOrders(); if(page==='users')loadUsers(); if(page==='products')loadAllProducts(); if(page==='margins')loadMargins();
+  document.getElementById('page-title').textContent={dashboard:'Dashboard',orders:'All Orders',users:'Users',products:'Products',margins:'Margin Rules',applications:'Supplier Applications'}[page];
+  if(page==='orders')loadAllOrders(); if(page==='users')loadUsers(); if(page==='products')loadAllProducts(); if(page==='margins')loadMargins(); if(page==='applications')loadApplications();
+}
+
+async function refreshAppsBadge(){
+  const {count}=await db.from('supplier_applications').select('*',{count:'exact',head:true}).eq('status','pending');
+  const b=document.getElementById('apps-count');
+  if(count&&count>0){ b.textContent=count; b.style.display='inline'; } else { b.style.display='none'; }
+}
+
+async function loadApplications(){
+  const el=document.getElementById('apps-table');
+  const {data,error}=await db.from('supplier_applications').select('*,profiles!user_id(full_name,email,company_name)').order('created_at',{ascending:false});
+  if(error){ el.innerHTML=`<div class="empty"><p style="color:var(--supernova-300)">Could not load: ${error.message}</p><p style="margin-top:var(--s-2);font-size:11px;color:var(--fg-faint)">Run the supplier_applications SQL in your Supabase SQL editor first.</p></div>`; return; }
+  if(!data||!data.length){ el.innerHTML='<div class="empty"><div class="empty-ic">↗</div><p>No applications yet</p></div>'; refreshAppsBadge(); return; }
+  el.innerHTML=`<table><thead><tr><th>Applicant</th><th>Company</th><th>Phone</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead><tbody>${data.map(a=>`
+    <tr id="app-${a.id}">
+      <td><strong>${a.profiles?.full_name||'—'}</strong><div style="font-size:11px;color:var(--fg-faint)">${a.profiles?.email||''}</div></td>
+      <td>${a.company_name||'—'}<div style="font-size:11px;color:var(--fg-faint)">Tax: ${a.tax_id||'—'}</div></td>
+      <td>${a.phone||'—'}</td>
+      <td>${fmtDate?fmtDate(a.created_at):new Date(a.created_at).toLocaleDateString()}</td>
+      <td>${statusBadge?statusBadge(a.status):a.status}</td>
+      <td>${a.status==='pending'
+        ? `<button class="btn btn-success" style="padding:6px 10px;margin-right:6px" onclick="reviewApp('${a.id}','approved')">Approve</button><button class="btn" style="padding:6px 10px" onclick="reviewApp('${a.id}','rejected')">Reject</button>`
+        : `<span style="font-size:11px;color:var(--fg-faint)">${a.reviewed_at?fmtDate(a.reviewed_at):''}</span>`}
+      </td>
+    </tr>
+    <tr><td colspan="6" style="background:var(--glass-bg-1);padding:var(--s-3) var(--s-5);font-size:var(--fs-12);color:var(--fg-muted)">
+      <strong>Address:</strong> ${a.business_address||'—'} · <strong>Website:</strong> ${a.website||'—'} · <strong>Years:</strong> ${a.years_in_business||'—'}<br>
+      <strong>Categories:</strong> ${a.categories||'—'}
+    </td></tr>
+  `).join('')}</tbody></table>`;
+  refreshAppsBadge();
+}
+
+async function reviewApp(id, status){
+  if(!confirm(`${status==='approved'?'Approve':'Reject'} this application?`))return;
+  const {error}=await db.from('supplier_applications').update({status, reviewed_at: new Date().toISOString()}).eq('id',id);
+  if(error){ toast('Failed: '+error.message,'e'); return; }
+  if(status==='approved'){
+    const {data:app}=await db.from('supplier_applications').select('user_id').eq('id',id).single();
+    if(app){
+      const {error:pe}=await db.from('profiles').update({role:'supplier'}).eq('id',app.user_id);
+      if(pe){ toast('Approved but role update failed: '+pe.message,'e'); }
+    }
+  }
+  toast(`Application ${status}`,'s');
+  loadApplications();
 }
 async function loadDashboard(){
   const {data:a}=await db.from('admin_analytics').select('*').single();
