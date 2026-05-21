@@ -251,6 +251,7 @@ code { font-family: var(--font-mono); font-size: 0.9em; background: var(--glass-
 }
 .press-banner::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 400px 200px at 15% 50%, rgba(139,92,255,0.14), transparent 70%); pointer-events: none; }
 .press-banner img { display: block; width: 100%; height: auto; max-height: 200px; object-fit: contain; position: relative; }
+.press-banner svg { display: block; width: 100%; height: auto; max-height: 200px; position: relative; }
 
 /* ---------- Type-piece status badges ---------- */
 .tp { 

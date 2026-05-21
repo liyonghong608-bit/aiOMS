@@ -65,3 +65,144 @@ function roleBadge(r){
   const [cls,label]=map[r]||['badge-muted',r];
   return `<span class="badge ${cls}">${label}</span>`;
 }
+
+/* ---- v1.1 press machine (inlined so it never 404s) ---- */
+const PRESS_MACHINE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 280" width="1240" height="280" fill="none" font-family="'Space Grotesk', sans-serif">
+  <defs>
+    <radialGradient id="voidHub" cx="50%" cy="50%" r="50%">
+      <stop offset="35%" stop-color="#03040b"/>
+      <stop offset="70%" stop-color="#131a4a" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#1d2868" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#62e7ff"/>
+      <stop offset="35%" stop-color="#8b5cff"/>
+      <stop offset="70%" stop-color="#ff3d9a"/>
+      <stop offset="100%" stop-color="#ffb547"/>
+    </linearGradient>
+    <linearGradient id="frameGlass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d2868" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#0c1130" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="tubeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1d2868"/>
+      <stop offset="45%" stop-color="#131a4a"/>
+      <stop offset="55%" stop-color="#0c1130"/>
+      <stop offset="100%" stop-color="#07091a"/>
+    </linearGradient>
+    <linearGradient id="tubeSheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cff" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#c4abff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#8b5cff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="gearGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#2f366a"/>
+      <stop offset="100%" stop-color="#0c1130"/>
+    </radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- ===== Telescope / type-cylinder extending right ===== -->
+  <g>
+    <!-- thread lines flowing down from the cylinder -->
+    <g stroke-width="1.4" opacity="0.5">
+      <line x1="560" y1="180" x2="560" y2="280" stroke="#64748b"/>
+      <line x1="610" y1="180" x2="610" y2="280" stroke="#3b5bdb"/>
+      <line x1="660" y1="180" x2="660" y2="280" stroke="#2f9e44"/>
+      <line x1="710" y1="180" x2="710" y2="280" stroke="#0c8599"/>
+      <line x1="760" y1="180" x2="760" y2="280" stroke="#e8590c"/>
+      <line x1="810" y1="180" x2="810" y2="280" stroke="#c2255c"/>
+      <line x1="860" y1="180" x2="860" y2="280" stroke="#9c36b5"/>
+      <line x1="910" y1="180" x2="910" y2="280" stroke="#2b8a3e"/>
+      <line x1="960" y1="180" x2="960" y2="280" stroke="#868e96"/>
+      <line x1="1010" y1="180" x2="1010" y2="280" stroke="#a61e4d"/>
+      <line x1="1060" y1="180" x2="1060" y2="280" stroke="#62e7ff"/>
+      <line x1="1110" y1="180" x2="1110" y2="280" stroke="#c92a2a"/>
+    </g>
+    <!-- cylinder body -->
+    <rect x="430" y="92" width="760" height="92" rx="14" fill="url(#tubeGrad)" stroke="#2f366a" stroke-width="1.5"/>
+    <rect x="430" y="128" width="760" height="3" fill="url(#tubeSheen)"/>
+    <!-- segment ribs -->
+    <g stroke="#2f366a" stroke-width="1" opacity="0.6">
+      <line x1="520" y1="96" x2="520" y2="180"/>
+      <line x1="610" y1="96" x2="610" y2="180"/>
+      <line x1="700" y1="96" x2="700" y2="180"/>
+      <line x1="790" y1="96" x2="790" y2="180"/>
+      <line x1="880" y1="96" x2="880" y2="180"/>
+      <line x1="970" y1="96" x2="970" y2="180"/>
+      <line x1="1060" y1="96" x2="1060" y2="180"/>
+      <line x1="1150" y1="96" x2="1150" y2="180"/>
+    </g>
+    <!-- end cap with lens -->
+    <ellipse cx="1190" cy="138" rx="14" ry="46" fill="#1d2868" stroke="#8b5cff" stroke-width="1.5"/>
+    <ellipse cx="1190" cy="138" rx="8" ry="34" fill="url(#ringGrad)" opacity="0.5"/>
+  </g>
+
+  <!-- ===== Machine frame (left) ===== -->
+  <g>
+    <rect x="40" y="30" width="380" height="220" rx="22" fill="url(#frameGlass)" stroke="#8b5cff" stroke-width="1.5"/>
+    <rect x="40" y="30" width="380" height="220" rx="22" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1" transform="translate(0,1)"/>
+    <!-- corner rivets -->
+    <circle cx="64" cy="54" r="3.5" fill="#62e7ff" opacity="0.8"/>
+    <circle cx="396" cy="54" r="3.5" fill="#ff3d9a" opacity="0.8"/>
+    <circle cx="64" cy="226" r="3.5" fill="#ffb547" opacity="0.8"/>
+    <circle cx="396" cy="226" r="3.5" fill="#8b5cff" opacity="0.8"/>
+
+    <!-- glow behind dial -->
+    <circle cx="180" cy="116" r="80" fill="#8b5cff" opacity="0.22" filter="url(#soft)"/>
+
+    <!-- ===== 字盘 dial ===== -->
+    <g transform="translate(180,116)">
+      <!-- ring of type pieces -->
+      <g font-size="14" font-weight="700" text-anchor="middle">
+        <!-- 12 pieces around radius 58 -->
+        <g transform="rotate(0)   translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#64748b"/><text y="5" transform="rotate(0)" fill="#fff">字</text></g>
+        <g transform="rotate(30)  translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#3b5bdb"/><text y="5" transform="rotate(-30)" fill="#fff">表</text></g>
+        <g transform="rotate(60)  translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#2f9e44"/><text y="5" transform="rotate(-60)" fill="#fff">录</text></g>
+        <g transform="rotate(90)  translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#0c8599"/><text y="5" transform="rotate(-90)" fill="#fff">联</text></g>
+        <g transform="rotate(120) translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#e8590c"/><text y="5" transform="rotate(-120)" fill="#fff">栏</text></g>
+        <g transform="rotate(150) translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#c2255c"/><text y="5" transform="rotate(-150)" fill="#fff">历</text></g>
+        <g transform="rotate(180) translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#9c36b5"/><text y="5" transform="rotate(-180)" fill="#fff">图</text></g>
+        <g transform="rotate(210) translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#2b8a3e"/><text y="5" transform="rotate(-210)" fill="#fff">入</text></g>
+        <g transform="rotate(240) translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#495057"/><text y="5" transform="rotate(-240)" fill="#fff">出</text></g>
+        <g transform="rotate(270) translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#a61e4d"/><text y="5" transform="rotate(-270)" fill="#fff">评</text></g>
+        <g transform="rotate(300) translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#868e96"/><text y="5" transform="rotate(-300)" fill="#fff">鉴</text></g>
+        <g transform="rotate(330) translate(0,-58)"><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#c92a2a"/><text y="5" transform="rotate(-330)" fill="#fff">权</text></g>
+      </g>
+      <!-- center hub -->
+      <circle r="34" fill="#03040b"/>
+      <circle r="34" fill="url(#voidHub)"/>
+      <circle r="34" fill="none" stroke="url(#ringGrad)" stroke-width="2"/>
+      <text y="-2" font-size="13" font-weight="700" text-anchor="middle" fill="#f6f7ff">aiOMS</text>
+      <text y="13" font-size="10" text-anchor="middle" fill="#a8aedb" font-family="'JetBrains Mono', monospace">字盘</text>
+    </g>
+
+    <!-- ===== pinion gear ===== -->
+    <g transform="translate(180,210)">
+      <g fill="url(#gearGrad)" stroke="#2f366a" stroke-width="1">
+        <circle r="22"/>
+        <g>
+          <rect x="-3" y="-30" width="6" height="10" rx="2"/>
+          <rect x="-3" y="20" width="6" height="10" rx="2"/>
+          <rect x="-30" y="-3" width="10" height="6" rx="2"/>
+          <rect x="20" y="-3" width="10" height="6" rx="2"/>
+          <g transform="rotate(45)"><rect x="-3" y="-30" width="6" height="10" rx="2"/><rect x="-3" y="20" width="6" height="10" rx="2"/><rect x="-30" y="-3" width="10" height="6" rx="2"/><rect x="20" y="-3" width="10" height="6" rx="2"/></g>
+        </g>
+      </g>
+      <circle r="7" fill="#8b5cff"/>
+      <circle r="3" fill="#c4abff"/>
+    </g>
+
+    <!-- nameplate -->
+    <rect x="78" y="232" width="304" height="2" fill="url(#ringGrad)" opacity="0.5"/>
+  </g>
+
+  <!-- eyebrow line top-left -->
+  <text x="40" y="20" font-size="11" letter-spacing="3" fill="#777eb3" font-family="'JetBrains Mono', monospace">蔡伦 造纸 · 毕昇 活字 · aiOMS 一型</text>
+</svg>`;
+function mountPressMachine(){
+  document.querySelectorAll('.press-banner').forEach(el=>{ el.innerHTML = PRESS_MACHINE_SVG; });
+}
+document.addEventListener('DOMContentLoaded', mountPressMachine);
