@@ -1,253 +1,80 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>aiOMS — Admin Dashboard</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>aiOMS · Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --p:#4f46e5;--pd:#4338ca;--pl:#eef2ff;
-  --s:#10b981;--sl:#d1fae5;--w:#f59e0b;--wl:#fef3c7;--d:#ef4444;--dl:#fee2e2;
-  --g0:#f8fafc;--g1:#f1f5f9;--g2:#e2e8f0;--g3:#cbd5e1;
-  --g4:#94a3b8;--g5:#64748b;--g6:#475569;--g7:#334155;--g8:#1e293b;--g9:#0f172a;
-  --font:system-ui,-apple-system,sans-serif;--r:8px;--rl:12px;
-}
-body{font-family:var(--font);background:var(--g0);color:var(--g8);display:flex;min-height:100vh;font-size:14px}
-.sb{width:220px;min-height:100vh;background:var(--g9);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10}
-.sb-brand{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
-.sb-logo{display:flex;align-items:center;gap:10px}
-.logo-sq{width:32px;height:32px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800}
-.logo-text{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
-.logo-sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:500}
-.sb-user{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
-.user-name{font-size:13px;font-weight:600;color:#fff}
-.user-role{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
-.sb-nav{flex:1;padding:8px}
-.nav-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.08em;text-transform:uppercase;padding:12px 8px 4px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;transition:all .15s;color:rgba(255,255,255,.6);font-size:13px;font-weight:500;user-select:none;margin-bottom:2px}
-.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
-.nav-item.on{background:var(--p);color:#fff;font-weight:700}
-.nav-ic{font-size:16px;width:20px;text-align:center}
-.sb-foot{padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
-.logout{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;color:rgba(255,255,255,.5);font-size:13px;font-weight:500;transition:all .15s}
-.logout:hover{background:rgba(239,68,68,.2);color:#fca5a5}
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
-.topbar{background:#fff;border-bottom:1px solid var(--g2);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
-.topbar h1{font-size:16px;font-weight:700;color:var(--g9)}
-.content{padding:24px;flex:1}
-/* STATS */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
-.stat{background:#fff;border:1px solid var(--g2);border-radius:var(--rl);padding:18px;position:relative;overflow:hidden}
-.stat::after{content:attr(data-ic);position:absolute;right:14px;top:14px;font-size:24px;opacity:.15}
-.stat-label{font-size:11px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.stat-val{font-size:28px;font-weight:800;color:var(--g9);letter-spacing:-.5px}
-.stat-sub{font-size:12px;color:var(--g5);margin-top:4px}
-.stat.accent{border-left:3px solid var(--p)}
-.stat.green{border-left:3px solid var(--s)}
-.stat.amber{border-left:3px solid var(--w)}
-/* TABLE */
-.table-wrap{background:#fff;border:1px solid var(--g2);border-radius:var(--rl);overflow:hidden;margin-bottom:20px}
-.table-head{padding:14px 18px;border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between}
-.table-head h3{font-size:14px;font-weight:700;color:var(--g9)}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:10px 16px;font-size:11px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--g2);background:var(--g0)}
-td{padding:11px 16px;border-bottom:1px solid var(--g1);font-size:13px;color:var(--g7);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--g0)}
-.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
-.badge-s{background:var(--sl);color:#065f46}
-.badge-w{background:var(--wl);color:#92400e}
-.badge-d{background:var(--dl);color:#991b1b}
-.badge-g{background:var(--g1);color:var(--g6)}
-.badge-p{background:var(--pl);color:var(--pd)}
-.badge-admin{background:#fdf2f8;color:#9d174d}
-/* BTN */
-.btn{padding:8px 14px;border:none;border-radius:var(--r);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pd)}
-.btn-s{background:var(--s);color:#fff}.btn-s:hover{filter:brightness(.9)}
-.btn-d{background:var(--d);color:#fff}.btn-d:hover{filter:brightness(.9)}
-.btn-g{background:var(--g1);color:var(--g7);border:1px solid var(--g2)}.btn-g:hover{background:var(--g2)}
-.btn-sm{padding:5px 10px;font-size:11px}
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:50;display:none;align-items:center;justify-content:center}
-.modal{background:#fff;border-radius:var(--rl);padding:24px;width:100%;max-width:460px;box-shadow:0 25px 50px rgba(0,0,0,.2)}
-.modal h2{font-size:16px;font-weight:700;color:var(--g9);margin-bottom:18px}
-.fg{margin-bottom:14px}
-.fg label{display:block;font-size:11px;font-weight:700;color:var(--g6);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.fg input,.fg select{width:100%;padding:9px 11px;border:1.5px solid var(--g2);border-radius:var(--r);font-size:13px;font-family:var(--font);color:var(--g8);outline:none;transition:border-color .15s}
-.fg input:focus,.fg select:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--g2)}
-/* CHART */
-.chart-wrap{background:#fff;border:1px solid var(--g2);border-radius:var(--rl);padding:20px;margin-bottom:20px}
-.chart-title{font-size:14px;font-weight:700;color:var(--g9);margin-bottom:16px}
-.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px}
-.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
-.bar{width:100%;background:var(--pl);border-radius:4px 4px 0 0;border:1px solid var(--p);min-height:4px;transition:height .5s}
-.bar-label{font-size:10px;color:var(--g5);text-align:center}
-.bar-val{font-size:10px;font-weight:700;color:var(--p);text-align:center}
-/* TOAST */
-.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;flex-direction:column;gap:8px}
-.toast{padding:11px 16px;border-radius:var(--r);font-size:13px;font-weight:600;color:#fff;opacity:0;transform:translateY(8px);transition:all .3s}
-.toast.show{opacity:1;transform:translateY(0)}
-.toast-s{background:var(--s)}.toast-e{background:var(--d)}
-.empty{text-align:center;padding:40px;color:var(--g4)}
-.page{display:none}.page.on{display:block}
-.loading{text-align:center;padding:40px;color:var(--g4)}
-.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--g3);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#boot{display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:14px;color:var(--g4)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-</style>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="aioms.css" />
 </head>
 <body>
-<div id="boot">Loading...</div>
-<div id="app" style="display:none">
+<div class="cosmos-bg" aria-hidden="true"><div class="cosmos-bg__stars"></div><div class="cosmos-bg__glow"></div></div>
+<div id="boot">Loading admin console…</div>
 
-<aside class="sb">
-  <div class="sb-brand">
-    <div class="sb-logo">
-      <div class="logo-sq">ai</div>
-      <div>
-        <div class="logo-text">aiOMS</div>
-        <div class="logo-sub">Admin Console</div>
-      </div>
-    </div>
-  </div>
-  <div class="sb-user">
-    <div class="user-name" id="uname">—</div>
-    <div class="user-role" style="color:#f59e0b;font-weight:600">⚡ Admin</div>
-  </div>
-  <nav class="sb-nav">
-    <div class="nav-label">Analytics</div>
-    <div class="nav-item on" onclick="nav('dashboard')" id="n-dashboard"><span class="nav-ic">📊</span> Dashboard</div>
-    <div class="nav-label">Management</div>
-    <div class="nav-item" onclick="nav('orders')" id="n-orders"><span class="nav-ic">📋</span> All Orders</div>
-    <div class="nav-item" onclick="nav('users')" id="n-users"><span class="nav-ic">👥</span> Users</div>
-    <div class="nav-item" onclick="nav('products')" id="n-products"><span class="nav-ic">📦</span> Products</div>
-    <div class="nav-item" onclick="nav('margins')" id="n-margins"><span class="nav-ic">💰</span> Margins</div>
-  </nav>
-  <div class="sb-foot">
-    <div class="logout" onclick="doLogout()">🚪 Sign out</div>
-  </div>
-</aside>
+<div id="app" class="app" style="display:none">
+  <aside class="sb">
+    <div class="sb-brand"><div class="sb-logo"><div class="logo-orb">ai</div><div><div class="logo-text">aiOMS</div><div class="logo-sub">Admin Console</div></div></div></div>
+    <div class="sb-user"><div class="user-avatar" id="uavatar" style="background:var(--grad-event-horizon);color:#fff">A</div><div class="user-meta"><div class="user-name" id="uname">—</div><div class="user-role admin">⚡ Admin</div></div></div>
+    <nav class="sb-nav">
+      <div class="nav-label">Analytics</div>
+      <div class="nav-item on" id="n-dashboard" onclick="nav('dashboard')"><span class="nav-ic">◎</span> Dashboard</div>
+      <div class="nav-label">Management</div>
+      <div class="nav-item" id="n-orders" onclick="nav('orders')"><span class="nav-ic">▤</span> All Orders</div>
+      <div class="nav-item" id="n-users" onclick="nav('users')"><span class="nav-ic">◐</span> Users</div>
+      <div class="nav-item" id="n-products" onclick="nav('products')"><span class="nav-ic">▦</span> Products</div>
+      <div class="nav-item" id="n-margins" onclick="nav('margins')"><span class="nav-ic">％</span> Margins</div>
+    </nav>
+    <div class="sb-foot"><div class="logout" onclick="doLogout()"><span class="nav-ic">⏻</span> Sign out</div></div>
+  </aside>
 
-<div class="main">
-  <div class="topbar">
-    <h1 id="page-title">Dashboard</h1>
-    <div id="topbar-actions"></div>
-  </div>
-  <div class="content">
-
-    <!-- DASHBOARD -->
-    <div class="page on" id="p-dashboard">
-      <div class="stats" id="stats-row">
-        <div class="stat accent" data-ic="💰"><div class="stat-label">Total Revenue</div><div class="stat-val" id="s-rev">—</div><div class="stat-sub">from all orders</div></div>
-        <div class="stat green" data-ic="📈"><div class="stat-label">Total Profit</div><div class="stat-val" id="s-profit">—</div><div class="stat-sub">after supplier costs</div></div>
-        <div class="stat amber" data-ic="📊"><div class="stat-label">Avg Margin</div><div class="stat-val" id="s-margin">—</div><div class="stat-sub">across all orders</div></div>
-        <div class="stat" data-ic="📋"><div class="stat-label">Total Orders</div><div class="stat-val" id="s-orders">—</div><div class="stat-sub">all time</div></div>
-        <div class="stat" data-ic="🛒"><div class="stat-label">Buyers</div><div class="stat-val" id="s-buyers">—</div></div>
-        <div class="stat" data-ic="🏭"><div class="stat-label">Suppliers</div><div class="stat-val" id="s-suppliers">—</div></div>
-      </div>
-      <div class="grid2">
-        <div class="table-wrap">
-          <div class="table-head"><h3>Recent Orders</h3></div>
-          <div id="dash-orders"><div class="loading"><div class="spin"></div></div></div>
+  <div class="main">
+    <div class="topbar"><h1 id="page-title">Dashboard</h1><div id="topbar-actions"></div></div>
+    <div class="content">
+      <div class="page on" id="p-dashboard">
+        <div class="stats">
+          <div class="stat glow-plasma" data-ic="$"><div class="stat-label">Total Revenue</div><div class="stat-val" id="s-rev">—</div><div class="stat-sub">all orders</div></div>
+          <div class="stat glow-quasar" data-ic="↑"><div class="stat-label">Total Profit</div><div class="stat-val profit" id="s-profit">—</div><div class="stat-sub">after costs</div></div>
+          <div class="stat glow-corona" data-ic="％"><div class="stat-label">Avg Margin</div><div class="stat-val" id="s-margin">—</div><div class="stat-sub">across orders</div></div>
+          <div class="stat glow-accretion" data-ic="▤"><div class="stat-label">Total Orders</div><div class="stat-val" id="s-orders">—</div></div>
+          <div class="stat" data-ic="◐"><div class="stat-label">Buyers</div><div class="stat-val" id="s-buyers">—</div></div>
+          <div class="stat" data-ic="▦"><div class="stat-label">Suppliers</div><div class="stat-val" id="s-suppliers">—</div></div>
         </div>
-        <div class="table-wrap">
-          <div class="table-head"><h3>Top Products</h3></div>
-          <div id="dash-products"><div class="loading"><div class="spin"></div></div></div>
+        <div class="grid2">
+          <div class="panel"><div class="panel-head"><h3>Recent Orders</h3></div><div id="dash-orders"><div class="loading"><div class="spin"></div></div></div></div>
+          <div class="panel"><div class="panel-head"><h3>Top Products</h3></div><div id="dash-products"><div class="loading"><div class="spin"></div></div></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- ORDERS -->
-    <div class="page" id="p-orders">
-      <div class="table-wrap">
-        <div class="table-head">
-          <h3>All Purchase Orders</h3>
-          <select id="order-filter" onchange="loadAllOrders()" style="padding:6px 10px;border:1px solid var(--g2);border-radius:var(--r);font-size:12px;font-family:var(--font)">
-            <option value="">All Status</option>
-            <option value="draft">Draft</option>
-            <option value="submitted">Submitted</option>
-            <option value="processing">Processing</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-        <div id="orders-table"><div class="loading"><div class="spin"></div></div></div>
+      <div class="page" id="p-orders"><div class="panel"><div class="panel-head"><h3>All Purchase Orders</h3><select id="order-filter" onchange="loadAllOrders()" class="btn" style="padding:6px 12px"><option value="">All Status</option><option value="submitted">Submitted</option><option value="processing">Processing</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div><div id="orders-table"><div class="loading"><div class="spin"></div></div></div></div></div>
+      <div class="page" id="p-users"><div class="panel"><div class="panel-head"><h3>All Users</h3></div><div id="users-table"><div class="loading"><div class="spin"></div></div></div></div></div>
+      <div class="page" id="p-products"><div class="panel"><div class="panel-head"><h3>All Products</h3></div><div id="products-table"><div class="loading"><div class="spin"></div></div></div></div></div>
+      <div class="page" id="p-margins">
+        <div class="panel"><div class="panel-head"><h3>Margin Rules</h3><button class="btn btn-primary" onclick="openMarginModal()">＋ Add Rule</button></div><div id="margins-table"><div class="loading"><div class="spin"></div></div></div></div>
+        <div class="panel" style="padding:var(--s-4) var(--s-5);font-size:var(--fs-12);color:var(--fg-subtle)"><strong style="color:var(--fg-muted)">How margins work:</strong> Rules match by priority (highest wins). Buyer-specific beats product &gt; category &gt; default. The default rule (priority 0) applies when nothing more specific matches.</div>
       </div>
     </div>
-
-    <!-- USERS -->
-    <div class="page" id="p-users">
-      <div class="table-wrap">
-        <div class="table-head"><h3>All Users</h3></div>
-        <div id="users-table"><div class="loading"><div class="spin"></div></div></div>
-      </div>
-    </div>
-
-    <!-- PRODUCTS -->
-    <div class="page" id="p-products">
-      <div class="table-wrap">
-        <div class="table-head"><h3>All Products</h3></div>
-        <div id="products-table"><div class="loading"><div class="spin"></div></div></div>
-      </div>
-    </div>
-
-    <!-- MARGINS -->
-    <div class="page" id="p-margins">
-      <div class="table-wrap">
-        <div class="table-head">
-          <h3>Margin Rules</h3>
-          <button class="btn btn-p" onclick="openMarginModal()">+ Add Rule</button>
-        </div>
-        <div id="margins-table"><div class="loading"><div class="spin"></div></div></div>
-      </div>
-      <div style="margin-top:12px;padding:14px 18px;background:#fff;border:1px solid var(--g2);border-radius:var(--rl);font-size:12px;color:var(--g6)">
-        <strong>How margin rules work:</strong> Rules are matched by priority (highest wins). A buyer-specific rule beats product &gt; category &gt; default (all). The default rule (priority 0) applies to everything with no more specific match.
-      </div>
-    </div>
-
   </div>
 </div>
-</div>
 
-<!-- Margin Modal -->
 <div class="overlay" id="margin-modal" onclick="if(event.target===this)closeMarginModal()">
   <div class="modal">
     <h2 id="margin-modal-title">Add Margin Rule</h2>
-    <div class="fg"><label>Rule Name *</label><input id="m-name" placeholder="e.g. Electronics Premium"></div>
-    <div class="frow">
-      <div class="fg"><label>Margin % *</label><input id="m-pct" type="number" min="0" max="999" step="0.01" placeholder="20.00"></div>
-      <div class="fg"><label>Priority</label><input id="m-prio" type="number" min="0" placeholder="0 = default"></div>
-    </div>
-    <div class="fg">
-      <label>Applies To</label>
-      <select id="m-type" onchange="toggleMarginTarget()">
-        <option value="all">All products (default)</option>
-        <option value="category">Specific category</option>
-        <option value="product">Specific product</option>
-      </select>
-    </div>
+    <div class="modal-sub">Control how much margin is added on top of supplier prices.</div>
+    <div class="fg"><label>Rule name *</label><input id="m-name" placeholder="e.g. Electronics Premium"></div>
+    <div class="frow"><div class="fg"><label>Margin % *</label><input id="m-pct" type="number" min="0" step="0.01" placeholder="20.00"></div><div class="fg"><label>Priority</label><input id="m-prio" type="number" min="0" placeholder="0"></div></div>
+    <div class="fg"><label>Applies to</label><select id="m-type" onchange="toggleMarginTarget()"><option value="all">All products (default)</option><option value="category">Specific category</option><option value="product">Specific product</option></select></div>
     <div class="fg" id="m-cat-wrap" style="display:none"><label>Category</label><select id="m-cat"></select></div>
-    <div class="modal-foot">
-      <button class="btn btn-g" onclick="closeMarginModal()">Cancel</button>
-      <button class="btn btn-p" id="save-margin-btn" onclick="saveMargin()">Save Rule</button>
-    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeMarginModal()">Cancel</button><button class="btn btn-primary" id="save-margin-btn" onclick="saveMargin()">Save Rule</button></div>
   </div>
 </div>
 
 <div class="toast-wrap" id="toasts"></div>
 
+<script src="shared.js"></script>
 <script>
-const SU='https://mqzrbekmtguhigtvqzay.supabase.co';
-const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xenJiZWttdGd1aGlndHZxemF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjY4NTIsImV4cCI6MjA5NDc0Mjg1Mn0.jDnU5ntMvx6fufcfpDW-IpcFJnQqN6LTqvMQcrHfz7o';
-const db=supabase.createClient(SU,SK);
 let USER=null,CATS=[],editMarginId=null;
-
 async function init(){
   const {data:{session}}=await db.auth.getSession();
   if(!session){location.href='index.html';return;}
@@ -255,241 +82,79 @@ async function init(){
   if(!p||p.role!=='admin'){location.href='index.html';return;}
   USER=p;
   document.getElementById('uname').textContent=p.full_name||p.email;
+  document.getElementById('uavatar').textContent=initials(p.full_name||p.email);
   document.getElementById('boot').style.display='none';
   document.getElementById('app').style.display='flex';
-  await loadCats();
-  await loadDashboard();
+  await loadCats(); await loadDashboard();
 }
-
-async function loadCats(){
-  const {data}=await db.from('categories').select('*').order('name');
-  CATS=data||[];
-  document.getElementById('m-cat').innerHTML=CATS.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-}
-
+async function loadCats(){ const {data}=await db.from('categories').select('*').order('name'); CATS=data||[]; document.getElementById('m-cat').innerHTML=CATS.map(c=>`<option value="${c.id}">${c.name}</option>`).join(''); }
 function nav(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
-  document.getElementById('p-'+page).classList.add('on');
-  document.getElementById('n-'+page).classList.add('on');
-  const titles={dashboard:'Dashboard',orders:'All Orders',users:'Users',products:'Products',margins:'Margin Rules'};
-  document.getElementById('page-title').textContent=titles[page]||page;
-  if(page==='orders')loadAllOrders();
-  if(page==='users')loadUsers();
-  if(page==='products')loadAllProducts();
-  if(page==='margins')loadMargins();
+  document.getElementById('p-'+page).classList.add('on'); document.getElementById('n-'+page).classList.add('on');
+  document.getElementById('page-title').textContent={dashboard:'Dashboard',orders:'All Orders',users:'Users',products:'Products',margins:'Margin Rules'}[page];
+  if(page==='orders')loadAllOrders(); if(page==='users')loadUsers(); if(page==='products')loadAllProducts(); if(page==='margins')loadMargins();
 }
-
 async function loadDashboard(){
-  const {data:analytics}=await db.from('admin_analytics').select('*').single();
-  if(analytics){
-    document.getElementById('s-rev').textContent='$'+fmtNum(analytics.total_revenue);
-    document.getElementById('s-profit').textContent='$'+fmtNum(analytics.total_profit);
-    document.getElementById('s-margin').textContent=fmtNum(analytics.avg_margin_percent)+'%';
-    document.getElementById('s-orders').textContent=analytics.total_orders;
-    document.getElementById('s-buyers').textContent=analytics.total_buyers;
-    document.getElementById('s-suppliers').textContent=analytics.total_suppliers;
-  }
-  // Recent orders
-  const {data:orders}=await db.from('purchase_orders')
-    .select('*,profiles!buyer_id(full_name,company_name)')
-    .order('created_at',{ascending:false}).limit(8);
+  const {data:a}=await db.from('admin_analytics').select('*').single();
+  if(a){document.getElementById('s-rev').textContent='$'+fmtNum(a.total_revenue);document.getElementById('s-profit').textContent='$'+fmtNum(a.total_profit);document.getElementById('s-margin').textContent=fmtNum(a.avg_margin_percent)+'%';document.getElementById('s-orders').textContent=a.total_orders;document.getElementById('s-buyers').textContent=a.total_buyers;document.getElementById('s-suppliers').textContent=a.total_suppliers;}
+  const {data:orders}=await db.from('purchase_orders').select('*,profiles!buyer_id(full_name,company_name)').order('created_at',{ascending:false}).limit(8);
   const oel=document.getElementById('dash-orders');
-  if(!orders?.length){oel.innerHTML='<div class="empty">No orders yet</div>';return;}
-  oel.innerHTML=`<table><thead><tr><th>Buyer</th><th>Total</th><th>Status</th></tr></thead><tbody>`+
-    orders.map(o=>`<tr>
-      <td>${o.profiles?.company_name||o.profiles?.full_name||'—'}</td>
-      <td><strong>$${fmtNum(o.total_buyer_price)}</strong></td>
-      <td>${statusBadge(o.status)}</td>
-    </tr>`).join('')+'</tbody></table>';
-  // Top products
-  const {data:items}=await db.from('order_items')
-    .select('product_id,quantity,buyer_price,products(name)')
-    .order('created_at',{ascending:false}).limit(50);
+  oel.innerHTML=!orders?.length?'<div class="empty">No orders yet</div>':`<table><thead><tr><th>Buyer</th><th>Total</th><th>Status</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${o.profiles?.company_name||o.profiles?.full_name||'—'}</td><td><strong>$${fmtNum(o.total_buyer_price)}</strong></td><td>${statusBadge(o.status)}</td></tr>`).join('')}</tbody></table>`;
+  const {data:items}=await db.from('order_items').select('product_id,quantity,buyer_price,products(name)').order('created_at',{ascending:false}).limit(50);
   const pel=document.getElementById('dash-products');
-  if(!items?.length){pel.innerHTML='<div class="empty">No order data yet</div>';return;}
-  const agg={};
-  items.forEach(i=>{
-    if(!agg[i.product_id])agg[i.product_id]={name:i.products?.name,qty:0,rev:0};
-    agg[i.product_id].qty+=Number(i.quantity);
-    agg[i.product_id].rev+=Number(i.buyer_price)*Number(i.quantity);
-  });
+  if(!items?.length){pel.innerHTML='<div class="empty">No data yet</div>';return;}
+  const agg={}; items.forEach(i=>{if(!agg[i.product_id])agg[i.product_id]={name:i.products?.name,qty:0,rev:0};agg[i.product_id].qty+=Number(i.quantity);agg[i.product_id].rev+=Number(i.buyer_price)*Number(i.quantity);});
   const top=Object.values(agg).sort((a,b)=>b.rev-a.rev).slice(0,8);
-  pel.innerHTML=`<table><thead><tr><th>Product</th><th>Qty Sold</th><th>Revenue</th></tr></thead><tbody>`+
-    top.map(p=>`<tr><td><strong>${p.name}</strong></td><td>${p.qty}</td><td>$${fmtNum(p.rev)}</td></tr>`).join('')+
-    '</tbody></table>';
+  pel.innerHTML=`<table><thead><tr><th>Product</th><th>Qty</th><th>Revenue</th></tr></thead><tbody>${top.map(p=>`<tr><td><strong>${p.name}</strong></td><td>${p.qty}</td><td>$${fmtNum(p.rev)}</td></tr>`).join('')}</tbody></table>`;
 }
-
 async function loadAllOrders(){
   const status=document.getElementById('order-filter')?.value||'';
   let q=db.from('purchase_orders').select('*,profiles!buyer_id(full_name,company_name,email)').order('created_at',{ascending:false});
   if(status)q=q.eq('status',status);
-  const {data}=await q;
-  const el=document.getElementById('orders-table');
+  const {data}=await q; const el=document.getElementById('orders-table');
   if(!data?.length){el.innerHTML='<div class="empty">No orders found</div>';return;}
-  el.innerHTML=`<table><thead><tr><th>ID</th><th>Buyer</th><th>Revenue</th><th>Cost</th><th>Profit</th><th>Margin</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody>`+
-    data.map(o=>{
-      const margin=o.total_buyer_price>0?((o.total_margin/o.total_buyer_price)*100):0;
-      return `<tr>
-        <td><code style="font-size:10px;background:var(--g1);padding:2px 5px;border-radius:4px">${o.id.slice(0,8)}</code></td>
-        <td>${o.profiles?.company_name||o.profiles?.full_name||'—'}<br><span style="font-size:11px;color:var(--g5)">${o.profiles?.email||''}</span></td>
-        <td><strong>$${fmtNum(o.total_buyer_price)}</strong></td>
-        <td>$${fmtNum(o.total_supplier_cost)}</td>
-        <td style="color:var(--s);font-weight:700">$${fmtNum(o.total_margin)}</td>
-        <td>${fmtNum(margin)}%</td>
-        <td>${statusBadge(o.status)}</td>
-        <td>${fmtDate(o.created_at)}</td>
-        <td>
-          ${o.status==='submitted'?`<button class="btn btn-p btn-sm" onclick="updateOrderStatus('${o.id}','processing')">Process</button>`:''}
-          ${o.status==='processing'?`<button class="btn btn-s btn-sm" onclick="updateOrderStatus('${o.id}','completed')">Complete</button>`:''}
-          ${['submitted','processing'].includes(o.status)?`<button class="btn btn-d btn-sm" onclick="updateOrderStatus('${o.id}','cancelled')" style="margin-left:4px">Cancel</button>`:''}
-        </td>
-      </tr>`;
-    }).join('')+'</tbody></table>';
+  el.innerHTML=`<table><thead><tr><th>ID</th><th>Buyer</th><th>Revenue</th><th>Cost</th><th>Profit</th><th>Margin</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody>${data.map(o=>{const m=o.total_buyer_price>0?(o.total_margin/o.total_buyer_price)*100:0;return `<tr><td><code>${o.id.slice(0,8)}</code></td><td>${o.profiles?.company_name||o.profiles?.full_name||'—'}<br><span style="font-size:11px;color:var(--fg-faint)">${o.profiles?.email||''}</span></td><td><strong>$${fmtNum(o.total_buyer_price)}</strong></td><td>$${fmtNum(o.total_supplier_cost)}</td><td class="profit">$${fmtNum(o.total_margin)}</td><td>${fmtNum(m)}%</td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.created_at)}</td><td>${o.status==='submitted'?`<button class="btn btn-sm btn-primary" onclick="updateOrderStatus('${o.id}','processing')">Process</button>`:''}${o.status==='processing'?`<button class="btn btn-sm btn-success" onclick="updateOrderStatus('${o.id}','completed')">Complete</button>`:''}${['submitted','processing'].includes(o.status)?`<button class="btn btn-sm btn-danger" onclick="updateOrderStatus('${o.id}','cancelled')">Cancel</button>`:''}</td></tr>`;}).join('')}</tbody></table>`;
 }
-
-async function updateOrderStatus(id,status){
-  const {error}=await db.from('purchase_orders').update({status}).eq('id',id);
-  if(error){toast('Error: '+error.message,'e');return;}
-  toast('Order updated','s');loadAllOrders();loadDashboard();
-}
-
+async function updateOrderStatus(id,status){ const {error}=await db.from('purchase_orders').update({status}).eq('id',id); if(error){toast('Error: '+error.message,'e');return;} toast('Order updated','s'); loadAllOrders(); loadDashboard(); }
 async function loadUsers(){
-  const {data}=await db.from('profiles').select('*').order('created_at',{ascending:false});
-  const el=document.getElementById('users-table');
-  if(!data?.length){el.innerHTML='<div class="empty">No users yet</div>';return;}
-  el.innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Role</th><th>Status</th><th>Joined</th><th>Action</th></tr></thead><tbody>`+
-    data.map(u=>`<tr>
-      <td><strong>${u.full_name||'—'}</strong></td>
-      <td style="font-size:12px">${u.email}</td>
-      <td>${u.company_name||'—'}</td>
-      <td>${roleBadge(u.role)}</td>
-      <td>${u.is_active?'<span class="badge badge-s">Active</span>':'<span class="badge badge-d">Inactive</span>'}</td>
-      <td>${fmtDate(u.created_at)}</td>
-      <td>
-        <select onchange="changeRole('${u.id}',this.value)" style="padding:4px 8px;border:1px solid var(--g2);border-radius:var(--r);font-size:11px;font-family:var(--font)">
-          <option value="">Change role...</option>
-          <option value="buyer">Buyer</option>
-          <option value="supplier">Supplier</option>
-          <option value="admin">Admin</option>
-        </select>
-      </td>
-    </tr>`).join('')+'</tbody></table>';
+  const {data}=await db.from('profiles').select('*').order('created_at',{ascending:false}); const el=document.getElementById('users-table');
+  if(!data?.length){el.innerHTML='<div class="empty">No users</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Role</th><th>Status</th><th>Joined</th><th>Action</th></tr></thead><tbody>${data.map(u=>`<tr><td><strong>${u.full_name||'—'}</strong></td><td style="font-size:12px">${u.email}</td><td>${u.company_name||'—'}</td><td>${roleBadge(u.role)}</td><td>${u.is_active?'<span class="badge badge-success">Active</span>':'<span class="badge badge-danger">Inactive</span>'}</td><td>${fmtDate(u.created_at)}</td><td><select onchange="changeRole('${u.id}',this.value)" class="btn btn-sm"><option value="">Change…</option><option value="buyer">Buyer</option><option value="supplier">Supplier</option><option value="admin">Admin</option></select></td></tr>`).join('')}</tbody></table>`;
 }
-
-async function changeRole(uid,role){
-  if(!role)return;
-  if(!confirm(`Change this user's role to ${role}?`))return;
-  const {error}=await db.from('profiles').update({role}).eq('id',uid);
-  if(error){toast('Error: '+error.message,'e');return;}
-  toast('Role updated','s');loadUsers();
-}
-
+async function changeRole(uid,role){ if(!role)return; if(!confirm(`Change role to ${role}?`))return; const {error}=await db.from('profiles').update({role}).eq('id',uid); if(error){toast('Error: '+error.message,'e');return;} toast('Role updated','s'); loadUsers(); }
 async function loadAllProducts(){
-  const {data}=await db.from('products').select('*,profiles!supplier_id(full_name,company_name),categories(name)').order('created_at',{ascending:false});
-  const el=document.getElementById('products-table');
-  if(!data?.length){el.innerHTML='<div class="empty">No products yet</div>';return;}
-  el.innerHTML=`<table><thead><tr><th>Name</th><th>Supplier</th><th>Category</th><th>Cost Price</th><th>Unit</th><th>Stock</th><th>Status</th></tr></thead><tbody>`+
-    data.map(p=>`<tr>
-      <td><strong>${p.name}</strong>${p.sku?`<br><code style="font-size:10px;color:var(--g5)">${p.sku}</code>`:''}</td>
-      <td>${p.profiles?.company_name||p.profiles?.full_name||'—'}</td>
-      <td>${p.categories?.name||'—'}</td>
-      <td><strong>$${fmtNum(p.supplier_price)}</strong></td>
-      <td>${p.unit||'unit'}</td>
-      <td>${p.stock_quantity||0}</td>
-      <td>${p.is_active?'<span class="badge badge-s">Active</span>':'<span class="badge badge-d">Inactive</span>'}</td>
-    </tr>`).join('')+'</tbody></table>';
+  const {data}=await db.from('products').select('*,profiles!supplier_id(full_name,company_name),categories(name)').order('created_at',{ascending:false}); const el=document.getElementById('products-table');
+  if(!data?.length){el.innerHTML='<div class="empty">No products</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Name</th><th>Supplier</th><th>Category</th><th>Cost</th><th>Unit</th><th>Stock</th><th>Status</th></tr></thead><tbody>${data.map(p=>`<tr><td><strong>${p.name}</strong>${p.sku?`<br><code>${p.sku}</code>`:''}</td><td>${p.profiles?.company_name||p.profiles?.full_name||'—'}</td><td>${p.categories?.name||'—'}</td><td><strong>$${fmtNum(p.supplier_price)}</strong></td><td>${p.unit||'unit'}</td><td>${p.stock_quantity||0}</td><td>${p.is_active?'<span class="badge badge-success">Active</span>':'<span class="badge badge-danger">Inactive</span>'}</td></tr>`).join('')}</tbody></table>`;
 }
-
 async function loadMargins(){
-  const {data}=await db.from('margin_rules').select('*,categories(name)').order('priority',{ascending:false});
-  const el=document.getElementById('margins-table');
+  const {data}=await db.from('margin_rules').select('*,categories(name)').order('priority',{ascending:false}); const el=document.getElementById('margins-table');
   if(!data?.length){el.innerHTML='<div class="empty">No margin rules</div>';return;}
-  el.innerHTML=`<table><thead><tr><th>Name</th><th>Margin %</th><th>Applies To</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead><tbody>`+
-    data.map(m=>`<tr>
-      <td><strong>${m.name}</strong></td>
-      <td><strong style="color:var(--s);font-size:16px">${m.margin_percent}%</strong></td>
-      <td>${m.applies_to==='all'?'<span class="badge badge-g">All Products</span>':
-          m.applies_to==='category'?`<span class="badge badge-p">Category: ${m.categories?.name||'—'}</span>`:
-          `<span class="badge badge-w">Product-specific</span>`}</td>
-      <td>${m.priority}</td>
-      <td>${m.is_active?'<span class="badge badge-s">Active</span>':'<span class="badge badge-d">Inactive</span>'}</td>
-      <td style="display:flex;gap:6px">
-        <button class="btn btn-sm btn-g" onclick="editMargin(${JSON.stringify(m).replace(/"/g,'&quot;')})">Edit</button>
-        <button class="btn btn-sm btn-${m.is_active?'d':'s'}" onclick="toggleMargin('${m.id}',${!m.is_active})">${m.is_active?'Disable':'Enable'}</button>
-      </td>
-    </tr>`).join('')+'</tbody></table>';
+  el.innerHTML=`<table><thead><tr><th>Name</th><th>Margin</th><th>Applies To</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead><tbody>${data.map(m=>`<tr><td><strong>${m.name}</strong></td><td><strong class="profit" style="font-size:16px">${m.margin_percent}%</strong></td><td>${m.applies_to==='all'?'<span class="badge badge-muted">All Products</span>':m.applies_to==='category'?`<span class="badge badge-plasma">Category: ${m.categories?.name||'—'}</span>`:'<span class="badge badge-warn">Product</span>'}</td><td>${m.priority}</td><td>${m.is_active?'<span class="badge badge-success">Active</span>':'<span class="badge badge-danger">Inactive</span>'}</td><td style="display:flex;gap:6px"><button class="btn btn-sm" onclick='editMargin(${JSON.stringify(m)})'>Edit</button><button class="btn btn-sm ${m.is_active?'btn-danger':'btn-success'}" onclick="toggleMargin('${m.id}',${!m.is_active})">${m.is_active?'Disable':'Enable'}</button></td></tr>`).join('')}</tbody></table>`;
 }
-
-async function toggleMargin(id,active){
-  const {error}=await db.from('margin_rules').update({is_active:active}).eq('id',id);
-  if(error){toast('Error','e');return;}
-  toast('Margin rule updated','s');loadMargins();
-}
-
+async function toggleMargin(id,active){ const {error}=await db.from('margin_rules').update({is_active:active}).eq('id',id); if(error){toast('Error','e');return;} toast('Updated','s'); loadMargins(); }
 function openMarginModal(rule=null){
   editMarginId=rule?.id||null;
   document.getElementById('margin-modal-title').textContent=rule?'Edit Margin Rule':'Add Margin Rule';
-  document.getElementById('m-name').value=rule?.name||'';
-  document.getElementById('m-pct').value=rule?.margin_percent||'';
-  document.getElementById('m-prio').value=rule?.priority||0;
-  document.getElementById('m-type').value=rule?.applies_to||'all';
-  document.getElementById('m-cat').value=rule?.category_id||'';
-  toggleMarginTarget();
-  document.getElementById('margin-modal').style.display='flex';
+  document.getElementById('m-name').value=rule?.name||''; document.getElementById('m-pct').value=rule?.margin_percent||''; document.getElementById('m-prio').value=rule?.priority||0; document.getElementById('m-type').value=rule?.applies_to||'all'; document.getElementById('m-cat').value=rule?.category_id||'';
+  toggleMarginTarget(); document.getElementById('margin-modal').classList.add('show');
 }
-
 function editMargin(rule){openMarginModal(rule);}
-function closeMarginModal(){document.getElementById('margin-modal').style.display='none';}
-
-function toggleMarginTarget(){
-  const t=document.getElementById('m-type').value;
-  document.getElementById('m-cat-wrap').style.display=t==='category'?'block':'none';
-}
-
+function closeMarginModal(){document.getElementById('margin-modal').classList.remove('show');}
+function toggleMarginTarget(){ document.getElementById('m-cat-wrap').style.display=document.getElementById('m-type').value==='category'?'block':'none'; }
 async function saveMargin(){
   const btn=document.getElementById('save-margin-btn');
-  const name=document.getElementById('m-name').value.trim();
-  const pct=parseFloat(document.getElementById('m-pct').value);
+  const name=document.getElementById('m-name').value.trim(), pct=parseFloat(document.getElementById('m-pct').value);
   if(!name||isNaN(pct)){toast('Name and margin % required','e');return;}
-  btn.disabled=true;btn.textContent='Saving...';
+  btn.disabled=true;btn.textContent='Saving…';
   const type=document.getElementById('m-type').value;
-  const payload={
-    name,margin_percent:pct,
-    applies_to:type,
-    priority:parseInt(document.getElementById('m-prio').value)||0,
-    category_id:type==='category'?document.getElementById('m-cat').value||null:null,
-    is_active:true
-  };
-  let error;
-  if(editMarginId){({error}=await db.from('margin_rules').update(payload).eq('id',editMarginId));}
-  else{({error}=await db.from('margin_rules').insert(payload));}
+  const payload={name,margin_percent:pct,applies_to:type,priority:parseInt(document.getElementById('m-prio').value)||0,category_id:type==='category'?document.getElementById('m-cat').value||null:null,is_active:true};
+  let error; if(editMarginId){({error}=await db.from('margin_rules').update(payload).eq('id',editMarginId));}else{({error}=await db.from('margin_rules').insert(payload));}
   btn.disabled=false;btn.textContent='Save Rule';
   if(error){toast('Error: '+error.message,'e');return;}
-  toast('Margin rule saved','s');closeMarginModal();loadMargins();
+  toast('Margin rule saved','s'); closeMarginModal(); loadMargins();
 }
-
-async function doLogout(){await db.auth.signOut();location.href='index.html';}
-
-function statusBadge(s){
-  const map={draft:'badge-g Draft',submitted:'badge-w Submitted',processing:'badge-p Processing',completed:'badge-s Completed',cancelled:'badge-d Cancelled'};
-  const v=map[s]||'badge-g '+s;const[cls,...words]=v.split(' ');
-  return `<span class="badge ${cls}">${words.join(' ')}</span>`;
-}
-function roleBadge(r){
-  const map={admin:'badge-admin ⚡ Admin',supplier:'badge-p Supplier',buyer:'badge-s Buyer'};
-  const v=map[r]||'badge-g '+r;const[cls,...words]=v.split(' ');
-  return `<span class="badge ${cls}">${words.join(' ')}</span>`;
-}
-function fmtNum(n){return Number(n||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fmtDate(d){return new Date(d).toLocaleDateString('en',{month:'short',day:'numeric',year:'numeric'});}
-function toast(msg,type='s'){
-  const w=document.getElementById('toasts');const t=document.createElement('div');
-  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);
-  setTimeout(()=>t.classList.add('show'),10);
-  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},3000);
-}
-
 init();
 </script>
 </body>

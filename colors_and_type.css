@@ -1,0 +1,322 @@
+/* =============================================================
+   SINGULARITY — Colors & Type
+   Cosmic glassmorphism. Deep void backdrops, luminous accents,
+   frosted glass surfaces with chromatic edge light.
+   ============================================================= */
+
+/* ---------- Fonts (Google Fonts CDN) ---------- */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+:root {
+  /* =========================================================
+     PALETTE — the cosmos
+     ========================================================= */
+
+  /* Void — backgrounds, deepest layer */
+  --void-1000: #03040b;   /* absolute zero, page bg behind everything */
+  --void-900:  #07091a;   /* primary page bg */
+  --void-800:  #0c1130;   /* surface 0, panel back */
+  --void-700:  #131a4a;   /* surface 1, raised panel */
+  --void-600:  #1d2868;   /* surface 2, hover */
+
+  /* Stellar — neutrals on top of void */
+  --stellar-100: #f6f7ff; /* primary text on dark */
+  --stellar-200: #d8dbf5; /* secondary text */
+  --stellar-300: #a8aedb; /* tertiary text, muted labels */
+  --stellar-400: #777eb3; /* placeholder, disabled */
+  --stellar-500: #4d548a; /* divider on glass */
+  --stellar-600: #2f366a; /* divider on void */
+
+  /* Ice — cool light-blue tinted neutrals; use for hovers, soft surfaces, frosted text */
+  --ice-100:    #eaf6ff; /* lightest, near-white with blue cast */
+  --ice-200:    #b8e4ff;
+  --ice-300:    #7fcdf5;
+  --ice-400:    #3a9ecf;
+
+  /* Mint — cool green tints; calm/positive states, ambient surfaces, low-emphasis success */
+  --mint-100:   #eafff3;
+  --mint-200:   #b5f2cf;
+  --mint-300:   #7ddcaa;
+  --mint-400:   #2fa67a;
+
+  /* Plasma — primary brand, violet-magenta gradient core */
+  --plasma-100: #f3ecff;
+  --plasma-300: #c4abff;
+  --plasma-500: #8b5cff; /* primary action */
+  --plasma-600: #6f3cff; /* primary hover */
+  --plasma-700: #5226e0;
+
+  /* Horizon — accent pink/magenta, event-horizon glow */
+  --horizon-300: #ffb3e0;
+  --horizon-500: #ff3d9a; /* accent, highlights, focus */
+  --horizon-600: #e51d80;
+
+  /* Corona — warm star light, used sparingly for ratings, warnings, status dots */
+  --corona-300: #ffe0a3;
+  --corona-500: #ffb547;
+  --corona-600: #ff8a1f;
+
+  /* Accretion — cyan disk, info / link / data */
+  --accretion-300: #b5f0ff;
+  --accretion-500: #62e7ff;
+  --accretion-600: #1cb5e0;
+
+  /* Quasar — green, success / running / live */
+  --quasar-300: #a8f7c8;
+  --quasar-500: #38d98a;
+  --quasar-600: #1ba864;
+
+  /* Supernova — red, destructive / error */
+  --supernova-300: #ffc4cf;
+  --supernova-500: #ff4f6b;
+  --supernova-600: #db1f3f;
+
+  /* =========================================================
+     SEMANTIC tokens
+     ========================================================= */
+  --bg:           var(--void-900);
+  --bg-deep:      var(--void-1000);
+  --surface:      var(--void-800);
+  --surface-1:    var(--void-700);
+  --surface-2:    var(--void-600);
+
+  --fg:           var(--stellar-100);
+  --fg-muted:     var(--stellar-200);
+  --fg-subtle:    var(--stellar-300);
+  --fg-faint:     var(--stellar-400);
+  --divider:      var(--stellar-600);
+  --divider-glass: rgba(255,255,255,0.08);
+
+  --primary:      var(--plasma-500);
+  --primary-hi:   var(--plasma-600);
+  --accent:       var(--horizon-500);
+  --info:         var(--accretion-500);
+  --success:      var(--quasar-500);
+  --warning:      var(--corona-500);
+  --danger:       var(--supernova-500);
+
+  /* Glass — the surface system. layered rgba whites + blur. */
+  --glass-bg-1:   rgba(255,255,255,0.04);  /* faintest, ambient panel */
+  --glass-bg-2:   rgba(255,255,255,0.07);  /* default glass panel */
+  --glass-bg-3:   rgba(255,255,255,0.11);  /* raised glass, modals */
+  --glass-bg-4:   rgba(255,255,255,0.16);  /* hovered glass */
+  --glass-border: rgba(255,255,255,0.14);  /* hairline edge light */
+  --glass-border-strong: rgba(255,255,255,0.22);
+  --glass-blur:   blur(20px) saturate(150%);
+  --glass-blur-lg:blur(40px) saturate(160%);
+
+  /* Gradients */
+  --grad-event-horizon: linear-gradient(135deg, #8b5cff 0%, #ff3d9a 55%, #ffb547 100%);
+  --grad-accretion:     linear-gradient(135deg, #62e7ff 0%, #8b5cff 100%);
+  --grad-void:          radial-gradient(ellipse at 30% 20%, #1a1f55 0%, #0a0d28 45%, #03040b 100%);
+  --grad-panel-sheen:   linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.06) 100%);
+
+  /* =========================================================
+     TYPE — Space Grotesk (display), Manrope (body), JetBrains Mono
+     ========================================================= */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body:    "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-20: 20px;
+  --fs-24: 24px;
+  --fs-32: 32px;
+  --fs-44: 44px;
+  --fs-60: 60px;
+  --fs-80: 80px;
+
+  --lh-tight:   1.08;
+  --lh-snug:    1.2;
+  --lh-normal:  1.45;
+  --lh-loose:   1.6;
+
+  --tracking-tighter: -0.04em;
+  --tracking-tight:   -0.02em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.04em;
+  --tracking-widest:  0.16em;
+
+  /* =========================================================
+     SPACING — 4px base, named after orbital distances
+     ========================================================= */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  20px;
+  --s-6:  24px;
+  --s-8:  32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+  --s-24: 96px;
+
+  /* =========================================================
+     RADII — soft, organic, glass-friendly
+     ========================================================= */
+  --r-xs:  6px;
+  --r-sm:  10px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+  --r-2xl: 40px;
+  --r-pill: 999px;
+
+  /* =========================================================
+     SHADOWS + GLOWS — gravitational depth
+     ========================================================= */
+  /* lift = layered subtle shadow, used on glass to ground it */
+  --lift-1: 0 1px 0 rgba(255,255,255,0.06) inset,
+            0 8px 24px rgba(3,4,11,0.4),
+            0 1px 2px rgba(3,4,11,0.6);
+  --lift-2: 0 1px 0 rgba(255,255,255,0.08) inset,
+            0 16px 48px rgba(3,4,11,0.55),
+            0 2px 6px rgba(3,4,11,0.7);
+  --lift-3: 0 1px 0 rgba(255,255,255,0.10) inset,
+            0 32px 80px rgba(3,4,11,0.7),
+            0 4px 12px rgba(3,4,11,0.8);
+
+  /* glow = colored aura for primary actions / focus */
+  --glow-plasma:   0 0 0 1px rgba(139,92,255,0.5),
+                   0 0 24px rgba(139,92,255,0.35),
+                   0 0 48px rgba(139,92,255,0.18);
+  --glow-horizon:  0 0 0 1px rgba(255,61,154,0.5),
+                   0 0 24px rgba(255,61,154,0.35);
+  --glow-accretion:0 0 0 1px rgba(98,231,255,0.5),
+                   0 0 24px rgba(98,231,255,0.3);
+
+  /* focus ring — accessible, brand-tinted */
+  --focus-ring: 0 0 0 2px var(--void-900),
+                0 0 0 4px var(--horizon-500);
+
+  /* =========================================================
+     MOTION
+     ========================================================= */
+  --ease-orbit:  cubic-bezier(0.22, 1, 0.36, 1);  /* default, decelerating */
+  --ease-fall:   cubic-bezier(0.7, 0, 0.84, 0);   /* gravity, accelerating */
+  --ease-warp:   cubic-bezier(0.85, 0, 0.15, 1);  /* dramatic in/out */
+  --dur-fast:    140ms;
+  --dur-base:    220ms;
+  --dur-slow:    420ms;
+  --dur-orbit:   900ms;
+}
+
+/* =============================================================
+   BASE
+   ============================================================= */
+html, body {
+  background: var(--bg-deep);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--fs-15);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: var(--tracking-tight);
+}
+
+/* =============================================================
+   SEMANTIC TYPE — drop-in classes
+   ============================================================= */
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-80);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tighter);
+}
+.h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-60);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tighter);
+}
+.h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-44);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tighter);
+}
+.h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-32);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight);
+}
+.h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-24);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight);
+}
+.h5 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-18);
+  line-height: var(--lh-snug);
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-12);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+}
+.body {
+  font-family: var(--font-body);
+  font-size: var(--fs-15);
+  line-height: var(--lh-normal);
+}
+.body-lg {
+  font-family: var(--font-body);
+  font-size: var(--fs-18);
+  line-height: var(--lh-loose);
+  color: var(--fg-muted);
+}
+.caption {
+  font-family: var(--font-body);
+  font-size: var(--fs-13);
+  line-height: var(--lh-normal);
+  color: var(--fg-subtle);
+}
+.code, code, kbd {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  letter-spacing: 0;
+  background: var(--glass-bg-2);
+  border: 1px solid var(--glass-border);
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+  color: var(--accretion-300);
+}
+
+/* =============================================================
+   GLASS — the surface primitive
+   ============================================================= */
+.glass {
+  background: var(--glass-bg-2);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--r-lg);
+  box-shadow: var(--lift-1);
+}
+.glass-raised {
+  background: var(--glass-bg-3);
+  border: 1px solid var(--glass-border-strong);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--lift-2);
+}

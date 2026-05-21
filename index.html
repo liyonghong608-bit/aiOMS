@@ -1,105 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>aiOMS — Supply Platform</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>aiOMS · Sign in</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="aioms.css" />
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --p:#4f46e5;--pd:#4338ca;--pl:#eef2ff;
-  --s:#10b981;--w:#f59e0b;--d:#ef4444;
-  --g0:#f8fafc;--g1:#f1f5f9;--g2:#e2e8f0;--g3:#cbd5e1;
-  --g4:#94a3b8;--g5:#64748b;--g6:#475569;--g7:#334155;
-  --g8:#1e293b;--g9:#0f172a;
-  --font:system-ui,-apple-system,sans-serif;
-  --r:8px;--rl:12px;
-  --sh:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
-  --shl:0 10px 25px rgba(0,0,0,.1),0 4px 6px rgba(0,0,0,.05);
+.auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: var(--s-5); }
+.auth-card { width: 100%; max-width: 440px; }
+.auth-brand { text-align: center; margin-bottom: var(--s-6); }
+.auth-orb {
+  width: 64px; height: 64px; border-radius: var(--r-lg); margin: 0 auto var(--s-4);
+  background: var(--grad-event-horizon); display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 24px; color: #fff;
+  box-shadow: var(--glow-plasma); animation: float 6s ease-in-out infinite;
 }
-body{font-family:var(--font);background:linear-gradient(135deg,#667eea22 0%,#764ba222 100%),var(--g0);min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--g8)}
-.wrap{width:100%;max-width:440px;padding:20px}
-.brand{text-align:center;margin-bottom:28px}
-.logo{width:52px;height:52px;background:var(--p);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:800;margin-bottom:10px;letter-spacing:-1px}
-.brand h1{font-size:24px;font-weight:800;color:var(--g9);letter-spacing:-0.5px}
-.brand p{font-size:13px;color:var(--g5);margin-top:4px}
-.card{background:#fff;border-radius:var(--rl);box-shadow:var(--shl);padding:28px;border:1px solid var(--g1)}
-.card h2{font-size:17px;font-weight:700;color:var(--g9);margin-bottom:20px}
-.fg{margin-bottom:14px}
-label{display:block;font-size:12px;font-weight:600;color:var(--g6);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
-input,select{width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:var(--r);font-size:14px;font-family:var(--font);color:var(--g8);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
-input:focus,select:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
-.roles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
-.role{border:2px solid var(--g2);border-radius:var(--r);padding:12px 10px;cursor:pointer;transition:all .15s;text-align:center;user-select:none}
-.role:hover{border-color:var(--p);background:var(--pl)}
-.role.on{border-color:var(--p);background:var(--pl)}
-.role-ic{font-size:22px;margin-bottom:4px}
-.role-name{font-size:13px;font-weight:700;color:var(--g7)}
-.role-desc{font-size:11px;color:var(--g5);margin-top:2px}
-.btn{width:100%;padding:11px;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--font);letter-spacing:.01em}
-.btn-p{background:var(--p);color:#fff;margin-top:6px}
-.btn-p:hover{background:var(--pd)}
-.btn-p:active{transform:scale(.98)}
-.btn-p:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.tog{text-align:center;margin-top:18px;font-size:13px;color:var(--g5)}
-.tog a{color:var(--p);text-decoration:none;font-weight:700;cursor:pointer}
-.tog a:hover{text-decoration:underline}
-.alert{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:14px;display:none}
-.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
-.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
-.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
-#boot{text-align:center;padding:60px 20px;color:var(--g4);font-size:14px}
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.auth-brand h1 { font-family: var(--font-display); font-size: var(--fs-32); font-weight: 600; color: var(--fg); letter-spacing: var(--tracking-tighter); }
+.auth-brand .eyebrow { margin-top: var(--s-2); }
+.auth-panel { background: var(--glass-bg-3); border: 1px solid var(--glass-border-strong); backdrop-filter: var(--glass-blur-lg); -webkit-backdrop-filter: var(--glass-blur-lg); border-radius: var(--r-xl); padding: var(--s-8); box-shadow: var(--lift-2); }
+.auth-panel h2 { font-family: var(--font-display); font-size: var(--fs-20); font-weight: 600; color: var(--fg); margin-bottom: var(--s-5); }
+.roles { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); margin-top: 6px; }
+.role { border: 1px solid var(--glass-border); border-radius: var(--r-md); padding: var(--s-4) var(--s-3); cursor: pointer; transition: all var(--dur-fast) var(--ease-orbit); text-align: center; user-select: none; background: var(--glass-bg-1); }
+.role:hover { border-color: var(--plasma-500); background: var(--glass-bg-2); }
+.role.on { border-color: var(--plasma-500); background: linear-gradient(135deg, rgba(139,92,255,0.2), rgba(255,61,154,0.1)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1); }
+.role-ic { font-size: 24px; margin-bottom: var(--s-2); }
+.role-name { font-size: var(--fs-13); font-weight: 700; color: var(--fg); }
+.role-desc { font-size: 11px; color: var(--fg-subtle); margin-top: 2px; }
+.btn-block { width: 100%; padding: 12px; margin-top: var(--s-2); }
+.tog { text-align: center; margin-top: var(--s-5); font-size: var(--fs-13); color: var(--fg-subtle); }
+.tog a { color: var(--plasma-300); text-decoration: none; font-weight: 700; cursor: pointer; }
+.tog a:hover { color: var(--horizon-300); }
+.alert { padding: 10px 14px; border-radius: var(--r-sm); font-size: var(--fs-13); margin-bottom: var(--s-4); display: none; }
+.alert.show { display: block; }
+.alert.err { background: rgba(255,79,107,0.14); color: var(--supernova-300); border: 1px solid rgba(255,79,107,0.3); }
+.alert.ok { background: rgba(56,217,138,0.14); color: var(--quasar-300); border: 1px solid rgba(56,217,138,0.3); }
+.spin-sm { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 7px; }
 </style>
 </head>
 <body>
-<div id="boot">Loading aiOMS...</div>
-<div class="wrap" id="ui" style="display:none">
-  <div class="brand">
-    <div class="logo">ai</div>
-    <h1>aiOMS</h1>
-    <p>AI-Powered Supply Platform</p>
-  </div>
-  <div class="card">
-    <div class="alert err" id="err"></div>
-    <div class="alert ok" id="ok"></div>
+<div class="cosmos-bg" aria-hidden="true"><div class="cosmos-bg__stars"></div><div class="cosmos-bg__glow"></div></div>
 
-    <!-- LOGIN -->
-    <div id="vlogin">
-      <h2>Welcome back</h2>
-      <div class="fg"><label>Email</label><input type="email" id="lemail" placeholder="you@company.com"></div>
-      <div class="fg"><label>Password</label><input type="password" id="lpass" placeholder="••••••••"></div>
-      <button class="btn btn-p" id="lbtn" onclick="doLogin()">Sign in</button>
+<div id="boot">Initializing aiOMS…</div>
+
+<div class="auth-wrap" id="ui" style="display:none">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-orb">ai</div>
+      <h1>aiOMS</h1>
+      <div class="eyebrow">Supply Intelligence · Builder OS</div>
     </div>
+    <div class="auth-panel">
+      <div class="alert err" id="err"></div>
+      <div class="alert ok" id="ok"></div>
 
-    <!-- SIGNUP -->
-    <div id="vsign" style="display:none">
-      <h2>Create account</h2>
-      <div class="fg"><label>Full name</label><input type="text" id="sname" placeholder="John Smith"></div>
-      <div class="fg"><label>Company name</label><input type="text" id="sco" placeholder="Acme Corp"></div>
-      <div class="fg"><label>Email</label><input type="email" id="semail" placeholder="you@company.com"></div>
-      <div class="fg"><label>Password</label><input type="password" id="spass" placeholder="Min. 8 characters"></div>
-      <div class="fg">
-        <label>I am a...</label>
-        <div class="roles">
-          <div class="role on" id="rb" onclick="setRole('buyer')">
-            <div class="role-ic">🛒</div>
-            <div class="role-name">Buyer</div>
-            <div class="role-desc">Purchase products</div>
-          </div>
-          <div class="role" id="rs" onclick="setRole('supplier')">
-            <div class="role-ic">📦</div>
-            <div class="role-name">Supplier</div>
-            <div class="role-desc">List & sell products</div>
+      <div id="vlogin">
+        <h2>Welcome back</h2>
+        <div class="fg"><label>Email</label><input type="email" id="lemail" placeholder="you@company.com"></div>
+        <div class="fg"><label>Password</label><input type="password" id="lpass" placeholder="••••••••"></div>
+        <button class="btn btn-primary btn-block" id="lbtn" onclick="doLogin()">Sign in</button>
+      </div>
+
+      <div id="vsign" style="display:none">
+        <h2>Create account</h2>
+        <div class="fg"><label>Full name</label><input type="text" id="sname" placeholder="John Smith"></div>
+        <div class="fg"><label>Company</label><input type="text" id="sco" placeholder="Acme Corp"></div>
+        <div class="fg"><label>Email</label><input type="email" id="semail" placeholder="you@company.com"></div>
+        <div class="fg"><label>Password</label><input type="password" id="spass" placeholder="Min. 8 characters"></div>
+        <div class="fg">
+          <label>Account type</label>
+          <div class="roles">
+            <div class="role on" id="rb" onclick="setRole('buyer')"><div class="role-ic">🛒</div><div class="role-name">Buyer</div><div class="role-desc">Source & purchase</div></div>
+            <div class="role" id="rs" onclick="setRole('supplier')"><div class="role-ic">📦</div><div class="role-name">Supplier</div><div class="role-desc">List & sell</div></div>
           </div>
         </div>
+        <button class="btn btn-primary btn-block" id="sbtn" onclick="doSignup()">Create account</button>
       </div>
-      <button class="btn btn-p" id="sbtn" onclick="doSignup()">Create account</button>
-    </div>
 
-    <div class="tog" id="tl">No account? <a onclick="sw('sign')">Sign up free</a></div>
-    <div class="tog" id="ts" style="display:none">Have an account? <a onclick="sw('login')">Sign in</a></div>
+      <div class="tog" id="tl">New to aiOMS? <a onclick="sw('sign')">Create an account</a></div>
+      <div class="tog" id="ts" style="display:none">Already registered? <a onclick="sw('login')">Sign in</a></div>
+    </div>
   </div>
 </div>
 
@@ -113,22 +96,15 @@ async function init(){
   const {data:{session}}=await db.auth.getSession();
   if(session){await go(session.user.id);return;}
   document.getElementById('boot').style.display='none';
-  document.getElementById('ui').style.display='block';
+  document.getElementById('ui').style.display='flex';
 }
-
 async function go(uid){
   const {data:p}=await db.from('profiles').select('role').eq('id',uid).single();
-  if(!p){document.getElementById('boot').style.display='none';document.getElementById('ui').style.display='block';return;}
+  if(!p){document.getElementById('boot').style.display='none';document.getElementById('ui').style.display='flex';return;}
   const map={supplier:'supplier.html',buyer:'buyer.html',admin:'admin.html'};
   location.href=map[p.role]||'buyer.html';
 }
-
-function setRole(r){
-  role=r;
-  document.getElementById('rb').classList.toggle('on',r==='buyer');
-  document.getElementById('rs').classList.toggle('on',r==='supplier');
-}
-
+function setRole(r){ role=r; document.getElementById('rb').classList.toggle('on',r==='buyer'); document.getElementById('rs').classList.toggle('on',r==='supplier'); }
 function sw(v){
   document.getElementById('vlogin').style.display=v==='login'?'block':'none';
   document.getElementById('vsign').style.display=v==='sign'?'block':'none';
@@ -136,54 +112,28 @@ function sw(v){
   document.getElementById('ts').style.display=v==='sign'?'block':'none';
   clr();
 }
-
-function msg(txt,type='err'){
-  const el=document.getElementById(type==='err'?'err':'ok');
-  el.textContent=txt;el.style.display='block';
-  setTimeout(()=>el.style.display='none',5000);
-}
-function clr(){['err','ok'].forEach(id=>{document.getElementById(id).style.display='none'});}
-
-function ld(btn,on){
-  btn.disabled=on;
-  btn.innerHTML=on?'<span class="spin"></span>Please wait...':btn.dataset.l;
-}
+function msg(txt,type='err'){ const el=document.getElementById(type==='err'?'err':'ok'); el.textContent=txt; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),5000); }
+function clr(){['err','ok'].forEach(id=>document.getElementById(id).classList.remove('show'));}
+function ld(btn,on){ btn.disabled=on; btn.innerHTML=on?'<span class="spin-sm"></span>Please wait…':btn.dataset.l; }
 
 async function doLogin(){
-  const btn=document.getElementById('lbtn');
-  btn.dataset.l='Sign in';ld(btn,true);clr();
-  const {data,error}=await db.auth.signInWithPassword({
-    email:document.getElementById('lemail').value.trim(),
-    password:document.getElementById('lpass').value
-  });
+  const btn=document.getElementById('lbtn'); btn.dataset.l='Sign in'; ld(btn,true); clr();
+  const {data,error}=await db.auth.signInWithPassword({ email:document.getElementById('lemail').value.trim(), password:document.getElementById('lpass').value });
   if(error){msg(error.message);ld(btn,false);return;}
   await go(data.user.id);
 }
-
 async function doSignup(){
-  const btn=document.getElementById('sbtn');
-  btn.dataset.l='Create account';ld(btn,true);clr();
-  const name=document.getElementById('sname').value.trim();
-  const co=document.getElementById('sco').value.trim();
-  const email=document.getElementById('semail').value.trim();
-  const pass=document.getElementById('spass').value;
+  const btn=document.getElementById('sbtn'); btn.dataset.l='Create account'; ld(btn,true); clr();
+  const name=document.getElementById('sname').value.trim(), co=document.getElementById('sco').value.trim();
+  const email=document.getElementById('semail').value.trim(), pass=document.getElementById('spass').value;
   if(!name||!email||!pass){msg('Please fill all fields.');ld(btn,false);return;}
   if(pass.length<8){msg('Password must be at least 8 characters.');ld(btn,false);return;}
-  const {data,error}=await db.auth.signUp({
-    email,password:pass,
-    options:{data:{full_name:name,company_name:co,role}}
-  });
+  const {data,error}=await db.auth.signUp({ email,password:pass, options:{data:{full_name:name,company_name:co,role}} });
   if(error){msg(error.message);ld(btn,false);return;}
-  msg('Account created! Redirecting...','ok');
+  msg('Account created! Redirecting…','ok');
   setTimeout(()=>go(data.user.id),1200);
 }
-
-document.addEventListener('keydown',e=>{
-  if(e.key!=='Enter')return;
-  const loginVisible=document.getElementById('vlogin').style.display!=='none';
-  if(loginVisible)doLogin();else doSignup();
-});
-
+document.addEventListener('keydown',e=>{ if(e.key!=='Enter')return; const lv=document.getElementById('vlogin').style.display!=='none'; lv?doLogin():doSignup(); });
 init();
 </script>
 </body>

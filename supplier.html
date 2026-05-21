@@ -1,214 +1,73 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>aiOMS — Supplier Portal</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>aiOMS · Supplier</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --p:#4f46e5;--pd:#4338ca;--pl:#eef2ff;
-  --s:#10b981;--sl:#d1fae5;--w:#f59e0b;--wl:#fef3c7;--d:#ef4444;--dl:#fee2e2;
-  --g0:#f8fafc;--g1:#f1f5f9;--g2:#e2e8f0;--g3:#cbd5e1;
-  --g4:#94a3b8;--g5:#64748b;--g6:#475569;--g7:#334155;--g8:#1e293b;--g9:#0f172a;
-  --font:system-ui,-apple-system,sans-serif;--r:8px;--rl:12px;
-}
-body{font-family:var(--font);background:var(--g0);color:var(--g8);display:flex;min-height:100vh;font-size:14px}
-/* SIDEBAR */
-.sb{width:220px;min-height:100vh;background:#fff;border-right:1px solid var(--g2);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10}
-.sb-brand{padding:20px 16px;border-bottom:1px solid var(--g2)}
-.sb-logo{display:flex;align-items:center;gap:10px}
-.logo-sq{width:32px;height:32px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800}
-.logo-text{font-size:15px;font-weight:800;color:var(--g9);letter-spacing:-.3px}
-.logo-sub{font-size:10px;color:var(--g5);font-weight:500}
-.sb-user{padding:12px 16px;border-bottom:1px solid var(--g2)}
-.user-name{font-size:13px;font-weight:600;color:var(--g8)}
-.user-role{font-size:11px;color:var(--g5);margin-top:2px}
-.sb-nav{flex:1;padding:8px 8px}
-.nav-label{font-size:10px;font-weight:700;color:var(--g4);letter-spacing:.08em;text-transform:uppercase;padding:12px 8px 4px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;transition:all .15s;color:var(--g6);font-size:13px;font-weight:500;user-select:none;margin-bottom:2px}
-.nav-item:hover{background:var(--g1);color:var(--g8)}
-.nav-item.on{background:var(--pl);color:var(--p);font-weight:700}
-.nav-ic{font-size:16px;width:20px;text-align:center}
-.sb-foot{padding:12px 8px;border-top:1px solid var(--g2)}
-.logout{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;color:var(--d);font-size:13px;font-weight:500;transition:all .15s}
-.logout:hover{background:var(--dl)}
-/* MAIN */
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{background:#fff;border-bottom:1px solid var(--g2);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
-.topbar h1{font-size:16px;font-weight:700;color:var(--g9)}
-.content{padding:24px;flex:1}
-/* CARDS */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
-.stat{background:#fff;border:1px solid var(--g2);border-radius:var(--rl);padding:16px 18px}
-.stat-label{font-size:11px;font-weight:600;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.stat-val{font-size:26px;font-weight:800;color:var(--g9);letter-spacing:-.5px}
-.stat-sub{font-size:11px;color:var(--g5);margin-top:3px}
-/* TABLE */
-.table-wrap{background:#fff;border:1px solid var(--g2);border-radius:var(--rl);overflow:hidden}
-.table-head{padding:14px 18px;border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between}
-.table-head h3{font-size:14px;font-weight:700;color:var(--g9)}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:10px 16px;font-size:11px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--g2);background:var(--g0)}
-td{padding:12px 16px;border-bottom:1px solid var(--g1);font-size:13px;color:var(--g7);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--g0)}
-.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
-.badge-s{background:var(--sl);color:#065f46}
-.badge-w{background:var(--wl);color:#92400e}
-.badge-d{background:var(--dl);color:#991b1b}
-.badge-g{background:var(--g1);color:var(--g6)}
-.badge-p{background:var(--pl);color:var(--pd)}
-/* BTN */
-.btn{padding:8px 14px;border:none;border-radius:var(--r);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pd)}
-.btn-s{background:var(--s);color:#fff}.btn-s:hover{filter:brightness(.9)}
-.btn-d{background:var(--d);color:#fff}.btn-d:hover{filter:brightness(.9)}
-.btn-g{background:var(--g1);color:var(--g7);border:1px solid var(--g2)}.btn-g:hover{background:var(--g2)}
-.btn-sm{padding:5px 10px;font-size:11px}
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:50;display:flex;align-items:center;justify-content:center;display:none}
-.modal{background:#fff;border-radius:var(--rl);padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,.2)}
-.modal h2{font-size:16px;font-weight:700;color:var(--g9);margin-bottom:18px}
-.fg{margin-bottom:14px}
-.fg label{display:block;font-size:11px;font-weight:700;color:var(--g6);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.fg input,.fg select,.fg textarea{width:100%;padding:9px 11px;border:1.5px solid var(--g2);border-radius:var(--r);font-size:13px;font-family:var(--font);color:var(--g8);outline:none;transition:border-color .15s}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
-.fg textarea{resize:vertical;min-height:70px}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--g2)}
-/* TOAST */
-.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;flex-direction:column;gap:8px}
-.toast{padding:11px 16px;border-radius:var(--r);font-size:13px;font-weight:600;color:#fff;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
-.toast.show{opacity:1;transform:translateY(0)}
-.toast-s{background:var(--s)}
-.toast-e{background:var(--d)}
-/* MISC */
-.empty{text-align:center;padding:40px;color:var(--g4)}
-.empty-ic{font-size:36px;margin-bottom:10px}
-.empty p{font-size:13px}
-.page{display:none}
-.page.on{display:block}
-.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--g3);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading{text-align:center;padding:40px;color:var(--g4)}
-#boot{display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:14px;color:var(--g4)}
-</style>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="aioms.css" />
 </head>
 <body>
-<div id="boot">Loading...</div>
-<div id="app" style="display:none">
+<div class="cosmos-bg" aria-hidden="true"><div class="cosmos-bg__stars"></div><div class="cosmos-bg__glow"></div></div>
+<div id="boot">Loading supplier portal…</div>
 
-<aside class="sb">
-  <div class="sb-brand">
-    <div class="sb-logo">
-      <div class="logo-sq">ai</div>
-      <div>
-        <div class="logo-text">aiOMS</div>
-        <div class="logo-sub">Supplier Portal</div>
-      </div>
-    </div>
-  </div>
-  <div class="sb-user">
-    <div class="user-name" id="uname">—</div>
-    <div class="user-role">Supplier</div>
-  </div>
-  <nav class="sb-nav">
-    <div class="nav-label">Menu</div>
-    <div class="nav-item on" onclick="nav('dashboard')" id="n-dashboard">
-      <span class="nav-ic">📊</span> Dashboard
-    </div>
-    <div class="nav-item" onclick="nav('products')" id="n-products">
-      <span class="nav-ic">📦</span> My Products
-    </div>
-    <div class="nav-item" onclick="nav('orders')" id="n-orders">
-      <span class="nav-ic">📋</span> Orders
-      <span id="badge-orders" style="margin-left:auto;background:var(--d);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;display:none"></span>
-    </div>
-  </nav>
-  <div class="sb-foot">
-    <div class="logout" onclick="doLogout()">🚪 Sign out</div>
-  </div>
-</aside>
+<div id="app" class="app" style="display:none">
+  <aside class="sb">
+    <div class="sb-brand"><div class="sb-logo"><div class="logo-orb">ai</div><div><div class="logo-text">aiOMS</div><div class="logo-sub">Supplier Portal</div></div></div></div>
+    <div class="sb-user"><div class="user-avatar" id="uavatar">S</div><div class="user-meta"><div class="user-name" id="uname">—</div><div class="user-role supplier">Supplier</div></div></div>
+    <nav class="sb-nav">
+      <div class="nav-label">Menu</div>
+      <div class="nav-item on" id="n-dashboard" onclick="nav('dashboard')"><span class="nav-ic">◎</span> Dashboard</div>
+      <div class="nav-item" id="n-products" onclick="nav('products')"><span class="nav-ic">▦</span> My Products</div>
+      <div class="nav-item" id="n-orders" onclick="nav('orders')"><span class="nav-ic">▤</span> Orders <span class="nav-badge" id="badge-orders" style="display:none"></span></div>
+    </nav>
+    <div class="sb-foot"><div class="logout" onclick="doLogout()"><span class="nav-ic">⏻</span> Sign out</div></div>
+  </aside>
 
-<div class="main">
-  <div class="topbar">
-    <h1 id="page-title">Dashboard</h1>
-    <div id="topbar-actions"></div>
-  </div>
-  <div class="content">
-
-    <!-- DASHBOARD -->
-    <div class="page on" id="p-dashboard">
-      <div class="stats" id="stats-grid">
-        <div class="stat"><div class="stat-label">Total Products</div><div class="stat-val" id="s-products">—</div></div>
-        <div class="stat"><div class="stat-label">Active Listings</div><div class="stat-val" id="s-active">—</div></div>
-        <div class="stat"><div class="stat-label">Pending Orders</div><div class="stat-val" id="s-pending">—</div></div>
-        <div class="stat"><div class="stat-label">Fulfilled Orders</div><div class="stat-val" id="s-fulfilled">—</div></div>
-      </div>
-      <div class="table-wrap">
-        <div class="table-head"><h3>Recent Order Items</h3></div>
-        <div id="dash-orders"><div class="loading"><div class="spin"></div></div></div>
-      </div>
-    </div>
-
-    <!-- PRODUCTS -->
-    <div class="page" id="p-products">
-      <div class="table-wrap">
-        <div class="table-head">
-          <h3>My Products</h3>
-          <button class="btn btn-p" onclick="openProductModal()">+ Add Product</button>
+  <div class="main">
+    <div class="topbar"><h1 id="page-title">Dashboard</h1><div id="topbar-actions"></div></div>
+    <div class="content">
+      <div class="page on" id="p-dashboard">
+        <div class="stats">
+          <div class="stat glow-plasma" data-ic="▦"><div class="stat-label">Total Products</div><div class="stat-val" id="s-products">—</div></div>
+          <div class="stat glow-accretion" data-ic="✓"><div class="stat-label">Active Listings</div><div class="stat-val" id="s-active">—</div></div>
+          <div class="stat glow-corona" data-ic="◷"><div class="stat-label">Pending Orders</div><div class="stat-val" id="s-pending">—</div></div>
+          <div class="stat glow-quasar" data-ic="✦"><div class="stat-label">Fulfilled</div><div class="stat-val" id="s-fulfilled">—</div></div>
         </div>
-        <div id="products-table"><div class="loading"><div class="spin"></div></div></div>
+        <div class="panel"><div class="panel-head"><h3>Recent Order Items</h3></div><div id="dash-orders"><div class="loading"><div class="spin"></div></div></div></div>
+      </div>
+
+      <div class="page" id="p-products">
+        <div class="panel"><div class="panel-head"><h3>My Products</h3><button class="btn btn-primary" onclick="openProductModal()">＋ Add Product</button></div><div id="products-table"><div class="loading"><div class="spin"></div></div></div></div>
+      </div>
+
+      <div class="page" id="p-orders">
+        <div class="panel"><div class="panel-head"><h3>Incoming Order Items</h3></div><div id="orders-table"><div class="loading"><div class="spin"></div></div></div></div>
       </div>
     </div>
-
-    <!-- ORDERS -->
-    <div class="page" id="p-orders">
-      <div class="table-wrap">
-        <div class="table-head"><h3>Incoming Order Items</h3></div>
-        <div id="orders-table"><div class="loading"><div class="spin"></div></div></div>
-      </div>
-    </div>
-
   </div>
 </div>
-</div>
 
-<!-- Product Modal -->
 <div class="overlay" id="prod-modal" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <h2 id="modal-title">Add Product</h2>
-    <div class="fg"><label>Product Name *</label><input id="p-name" placeholder="e.g. Steel Rod 10mm"></div>
-    <div class="frow">
-      <div class="fg"><label>SKU</label><input id="p-sku" placeholder="e.g. SR-10MM"></div>
-      <div class="fg"><label>Category</label><select id="p-cat"></select></div>
-    </div>
-    <div class="fg"><label>Description</label><textarea id="p-desc" placeholder="Product details..."></textarea></div>
-    <div class="frow">
-      <div class="fg"><label>Your Price (USD) *</label><input id="p-price" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      <div class="fg"><label>Unit</label><input id="p-unit" placeholder="e.g. kg, pcs, box"></div>
-    </div>
-    <div class="frow">
-      <div class="fg"><label>Stock Qty</label><input id="p-stock" type="number" min="0" placeholder="0"></div>
-      <div class="fg"><label>Min. Order Qty</label><input id="p-moq" type="number" min="1" placeholder="1"></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-g" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-p" id="save-prod-btn" onclick="saveProduct()">Save Product</button>
-    </div>
+    <div class="modal-sub">List a product for buyers to discover and order.</div>
+    <div class="fg"><label>Product name *</label><input id="p-name" placeholder="e.g. Steel Rod 10mm"></div>
+    <div class="frow"><div class="fg"><label>SKU</label><input id="p-sku" placeholder="SR-10MM"></div><div class="fg"><label>Category</label><select id="p-cat"></select></div></div>
+    <div class="fg"><label>Description</label><textarea id="p-desc" placeholder="Product details…"></textarea></div>
+    <div class="frow"><div class="fg"><label>Your price (USD) *</label><input id="p-price" type="number" min="0" step="0.01" placeholder="0.00"></div><div class="fg"><label>Unit</label><input id="p-unit" placeholder="kg, pcs, box"></div></div>
+    <div class="frow"><div class="fg"><label>Stock qty</label><input id="p-stock" type="number" min="0" placeholder="0"></div><div class="fg"><label>Min. order qty</label><input id="p-moq" type="number" min="1" placeholder="1"></div></div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="save-prod-btn" onclick="saveProduct()">Save Product</button></div>
   </div>
 </div>
 
 <div class="toast-wrap" id="toasts"></div>
 
+<script src="shared.js"></script>
 <script>
-const SU='https://mqzrbekmtguhigtvqzay.supabase.co';
-const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xenJiZWttdGd1aGlndHZxemF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjY4NTIsImV4cCI6MjA5NDc0Mjg1Mn0.jDnU5ntMvx6fufcfpDW-IpcFJnQqN6LTqvMQcrHfz7o';
-const db=supabase.createClient(SU,SK);
 let USER=null,CATS=[],editingId=null;
-
 async function init(){
   const {data:{session}}=await db.auth.getSession();
   if(!session){location.href='index.html';return;}
@@ -216,191 +75,83 @@ async function init(){
   if(!p||p.role!=='supplier'){location.href='index.html';return;}
   USER=p;
   document.getElementById('uname').textContent=p.full_name||p.email;
+  document.getElementById('uavatar').textContent=initials(p.full_name||p.email);
   document.getElementById('boot').style.display='none';
   document.getElementById('app').style.display='flex';
-  await loadCats();
-  await loadDashboard();
+  await loadCats(); await loadDashboard();
 }
-
 async function loadCats(){
-  const {data}=await db.from('categories').select('*').order('name');
-  CATS=data||[];
-  const sel=document.getElementById('p-cat');
-  sel.innerHTML='<option value="">-- Select --</option>'+CATS.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const {data}=await db.from('categories').select('*').order('name'); CATS=data||[];
+  document.getElementById('p-cat').innerHTML='<option value="">— Select —</option>'+CATS.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
 }
-
 function nav(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
   document.getElementById('p-'+page).classList.add('on');
   document.getElementById('n-'+page).classList.add('on');
   const titles={dashboard:'Dashboard',products:'My Products',orders:'Orders'};
-  document.getElementById('page-title').textContent=titles[page]||page;
-  const actions={products:`<button class="btn btn-p" onclick="openProductModal()">+ Add Product</button>`};
-  document.getElementById('topbar-actions').innerHTML=actions[page]||'';
-  if(page==='products')loadProducts();
-  if(page==='orders')loadOrders();
+  document.getElementById('page-title').textContent=titles[page];
+  document.getElementById('topbar-actions').innerHTML=page==='products'?`<button class="btn btn-primary" onclick="openProductModal()">＋ Add Product</button>`:'';
+  if(page==='products')loadProducts(); if(page==='orders')loadOrders();
 }
-
 async function loadDashboard(){
   const {data:prods}=await db.from('products').select('id,is_active').eq('supplier_id',USER.id);
   const {data:items}=await db.from('order_items').select('id,status').eq('supplier_id',USER.id);
   document.getElementById('s-products').textContent=prods?.length||0;
   document.getElementById('s-active').textContent=prods?.filter(p=>p.is_active).length||0;
-  document.getElementById('s-pending').textContent=items?.filter(i=>i.status==='pending').length||0;
-  document.getElementById('s-fulfilled').textContent=items?.filter(i=>i.status==='fulfilled').length||0;
   const pending=items?.filter(i=>i.status==='pending').length||0;
-  const badge=document.getElementById('badge-orders');
-  if(pending>0){badge.textContent=pending;badge.style.display='inline';}
-  await loadRecentOrders();
-}
-
-async function loadRecentOrders(){
-  const {data}=await db.from('order_items')
-    .select('*,products(name),purchase_orders(id,created_at,buyer_id,profiles!purchase_orders_buyer_id_fkey(full_name,company_name))')
-    .eq('supplier_id',USER.id).order('created_at',{ascending:false}).limit(10);
+  document.getElementById('s-pending').textContent=pending;
+  document.getElementById('s-fulfilled').textContent=items?.filter(i=>i.status==='fulfilled').length||0;
+  const b=document.getElementById('badge-orders'); if(pending>0){b.textContent=pending;b.style.display='inline';}
+  const {data}=await db.from('order_items').select('*,products(name,unit),purchase_orders(profiles!purchase_orders_buyer_id_fkey(full_name,company_name))').eq('supplier_id',USER.id).order('created_at',{ascending:false}).limit(10);
   const el=document.getElementById('dash-orders');
-  if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-ic">📋</div><p>No orders yet</p></div>';return;}
-  el.innerHTML=`<table><thead><tr><th>Product</th><th>Buyer</th><th>Qty</th><th>Status</th><th>Date</th></tr></thead><tbody>`+
-    data.map(i=>`<tr>
-      <td><strong>${i.products?.name||'—'}</strong></td>
-      <td>${i.purchase_orders?.profiles?.company_name||i.purchase_orders?.profiles?.full_name||'—'}</td>
-      <td>${i.quantity} ${i.products?.unit||''}</td>
-      <td>${statusBadge(i.status)}</td>
-      <td>${fmtDate(i.created_at)}</td>
-    </tr>`).join('')+`</tbody></table>`;
+  if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-ic">▤</div><p>No orders yet</p></div>';return;}
+  el.innerHTML=tbl(['Product','Buyer','Qty','Status','Date'],data.map(i=>`<tr><td><strong>${i.products?.name||'—'}</strong></td><td>${i.purchase_orders?.profiles?.company_name||i.purchase_orders?.profiles?.full_name||'—'}</td><td>${i.quantity} ${i.products?.unit||''}</td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.created_at)}</td></tr>`).join(''));
 }
-
 async function loadProducts(){
   const {data}=await db.from('products').select('*,categories(name)').eq('supplier_id',USER.id).order('created_at',{ascending:false});
   const el=document.getElementById('products-table');
-  if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-ic">📦</div><p>No products yet. Add your first product!</p></div>';return;}
-  el.innerHTML=`<table><thead><tr><th>Name</th><th>SKU</th><th>Category</th><th>Your Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody>`+
-    data.map(p=>`<tr>
-      <td><strong>${p.name}</strong>${p.description?`<br><span style="color:var(--g5);font-size:11px">${p.description.slice(0,50)}${p.description.length>50?'...':''}</span>`:''}</td>
-      <td><code style="font-size:11px;background:var(--g1);padding:2px 6px;border-radius:4px">${p.sku||'—'}</code></td>
-      <td>${p.categories?.name||'—'}</td>
-      <td><strong>$${fmtNum(p.supplier_price)}</strong>/${p.unit||'unit'}</td>
-      <td>${p.stock_quantity||0}</td>
-      <td>${p.is_active?'<span class="badge badge-s">Active</span>':'<span class="badge badge-d">Inactive</span>'}</td>
-      <td style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-g btn-sm" onclick="openProductModal('${p.id}')">Edit</button>
-        <button class="btn btn-sm ${p.is_active?'btn-d':'btn-s'}" onclick="toggleProduct('${p.id}',${!p.is_active})">${p.is_active?'Deactivate':'Activate'}</button>
-      </td>
-    </tr>`).join('')+`</tbody></table>`;
+  if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-ic">▦</div><p>No products yet. Add your first listing!</p></div>';return;}
+  el.innerHTML=tbl(['Name','SKU','Category','Your Price','Stock','Status','Actions'],data.map(p=>`<tr>
+    <td><strong>${p.name}</strong>${p.description?`<br><span style="color:var(--fg-faint);font-size:11px">${p.description.slice(0,48)}${p.description.length>48?'…':''}</span>`:''}</td>
+    <td>${p.sku?`<code>${p.sku}</code>`:'—'}</td><td>${p.categories?.name||'—'}</td>
+    <td><strong>$${fmtNum(p.supplier_price)}</strong> <span style="color:var(--fg-faint)">/${p.unit||'unit'}</span></td>
+    <td>${p.stock_quantity||0}</td><td>${p.is_active?'<span class="badge badge-success">Active</span>':'<span class="badge badge-danger">Inactive</span>'}</td>
+    <td style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" onclick="openProductModal('${p.id}')">Edit</button><button class="btn btn-sm ${p.is_active?'btn-danger':'btn-success'}" onclick="toggleProduct('${p.id}',${!p.is_active})">${p.is_active?'Disable':'Enable'}</button></td></tr>`).join(''));
 }
-
 async function loadOrders(){
-  const {data}=await db.from('order_items')
-    .select('*,products(name,unit),purchase_orders(id,buyer_id,profiles!purchase_orders_buyer_id_fkey(full_name,company_name))')
-    .eq('supplier_id',USER.id).order('created_at',{ascending:false});
+  const {data}=await db.from('order_items').select('*,products(name,unit),purchase_orders(profiles!purchase_orders_buyer_id_fkey(full_name,company_name))').eq('supplier_id',USER.id).order('created_at',{ascending:false});
   const el=document.getElementById('orders-table');
-  if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-ic">📋</div><p>No incoming orders yet</p></div>';return;}
-  el.innerHTML=`<table><thead><tr><th>Product</th><th>Buyer</th><th>Qty</th><th>Your Revenue</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>`+
-    data.map(i=>`<tr>
-      <td><strong>${i.products?.name||'—'}</strong></td>
-      <td>${i.purchase_orders?.profiles?.company_name||i.purchase_orders?.profiles?.full_name||'—'}</td>
-      <td>${i.quantity} ${i.products?.unit||''}</td>
-      <td><strong>$${fmtNum(i.supplier_price*i.quantity)}</strong></td>
-      <td>${statusBadge(i.status)}</td>
-      <td>${fmtDate(i.created_at)}</td>
-      <td>${i.status==='pending'?`<button class="btn btn-s btn-sm" onclick="updateItem('${i.id}','accepted')">Accept</button>
-        <button class="btn btn-d btn-sm" onclick="updateItem('${i.id}','rejected')" style="margin-left:4px">Reject</button>`:
-        i.status==='accepted'?`<button class="btn btn-p btn-sm" onclick="updateItem('${i.id}','fulfilled')">Mark Fulfilled</button>`:'—'}
-      </td>
-    </tr>`).join('')+`</tbody></table>`;
+  if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-ic">▤</div><p>No incoming orders yet</p></div>';return;}
+  el.innerHTML=tbl(['Product','Buyer','Qty','Revenue','Status','Date','Actions'],data.map(i=>`<tr>
+    <td><strong>${i.products?.name||'—'}</strong></td><td>${i.purchase_orders?.profiles?.company_name||i.purchase_orders?.profiles?.full_name||'—'}</td>
+    <td>${i.quantity} ${i.products?.unit||''}</td><td><strong>$${fmtNum(i.supplier_price*i.quantity)}</strong></td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.created_at)}</td>
+    <td>${i.status==='pending'?`<button class="btn btn-sm btn-success" onclick="updateItem('${i.id}','accepted')">Accept</button> <button class="btn btn-sm btn-danger" onclick="updateItem('${i.id}','rejected')">Reject</button>`:i.status==='accepted'?`<button class="btn btn-sm btn-primary" onclick="updateItem('${i.id}','fulfilled')">Fulfill</button>`:'—'}</td></tr>`).join(''));
 }
-
-async function updateItem(id,status){
-  const {error}=await db.from('order_items').update({status}).eq('id',id);
-  if(error){toast('Failed to update','e');return;}
-  toast('Order item updated','s');
-  loadOrders();loadDashboard();
-}
-
-async function toggleProduct(id,active){
-  const {error}=await db.from('products').update({is_active:active}).eq('id',id);
-  if(error){toast('Failed to update','e');return;}
-  toast(active?'Product activated':'Product deactivated','s');
-  loadProducts();
-}
-
-let prodData={};
+async function updateItem(id,status){ const {error}=await db.from('order_items').update({status}).eq('id',id); if(error){toast('Failed to update','e');return;} toast('Order updated','s'); loadOrders(); loadDashboard(); }
+async function toggleProduct(id,active){ const {error}=await db.from('products').update({is_active:active}).eq('id',id); if(error){toast('Failed','e');return;} toast(active?'Activated':'Disabled','s'); loadProducts(); }
 async function openProductModal(id=null){
   editingId=id;
   document.getElementById('modal-title').textContent=id?'Edit Product':'Add Product';
   document.getElementById('save-prod-btn').textContent=id?'Update Product':'Save Product';
-  ['p-name','p-sku','p-desc','p-price','p-unit','p-stock','p-moq'].forEach(f=>document.getElementById(f).value='');
-  document.getElementById('p-cat').value='';
-  if(id){
-    const {data}=await db.from('products').select('*').eq('id',id).single();
-    if(data){
-      document.getElementById('p-name').value=data.name||'';
-      document.getElementById('p-sku').value=data.sku||'';
-      document.getElementById('p-desc').value=data.description||'';
-      document.getElementById('p-price').value=data.supplier_price||'';
-      document.getElementById('p-unit').value=data.unit||'';
-      document.getElementById('p-stock').value=data.stock_quantity||'';
-      document.getElementById('p-moq').value=data.min_order_quantity||'';
-      document.getElementById('p-cat').value=data.category_id||'';
-    }
-  }
-  document.getElementById('prod-modal').style.display='flex';
+  ['p-name','p-sku','p-desc','p-price','p-unit','p-stock','p-moq'].forEach(f=>document.getElementById(f).value=''); document.getElementById('p-cat').value='';
+  if(id){const {data}=await db.from('products').select('*').eq('id',id).single();
+    if(data){document.getElementById('p-name').value=data.name||'';document.getElementById('p-sku').value=data.sku||'';document.getElementById('p-desc').value=data.description||'';document.getElementById('p-price').value=data.supplier_price||'';document.getElementById('p-unit').value=data.unit||'';document.getElementById('p-stock').value=data.stock_quantity||'';document.getElementById('p-moq').value=data.min_order_quantity||'';document.getElementById('p-cat').value=data.category_id||'';}}
+  document.getElementById('prod-modal').classList.add('show');
 }
-
-function closeModal(){document.getElementById('prod-modal').style.display='none';}
-
+function closeModal(){document.getElementById('prod-modal').classList.remove('show');}
 async function saveProduct(){
   const btn=document.getElementById('save-prod-btn');
-  const name=document.getElementById('p-name').value.trim();
-  const price=parseFloat(document.getElementById('p-price').value);
-  if(!name||isNaN(price)){toast('Name and price are required','e');return;}
-  btn.disabled=true;btn.textContent='Saving...';
-  const payload={
-    supplier_id:USER.id,
-    name,
-    sku:document.getElementById('p-sku').value.trim()||null,
-    category_id:document.getElementById('p-cat').value||null,
-    description:document.getElementById('p-desc').value.trim()||null,
-    supplier_price:price,
-    unit:document.getElementById('p-unit').value.trim()||'unit',
-    stock_quantity:parseFloat(document.getElementById('p-stock').value)||0,
-    min_order_quantity:parseFloat(document.getElementById('p-moq').value)||1,
-  };
-  let error;
-  if(editingId){
-    ({error}=await db.from('products').update(payload).eq('id',editingId));
-  }else{
-    ({error}=await db.from('products').insert(payload));
-  }
+  const name=document.getElementById('p-name').value.trim(), price=parseFloat(document.getElementById('p-price').value);
+  if(!name||isNaN(price)){toast('Name and price required','e');return;}
+  btn.disabled=true;btn.textContent='Saving…';
+  const payload={supplier_id:USER.id,name,sku:document.getElementById('p-sku').value.trim()||null,category_id:document.getElementById('p-cat').value||null,description:document.getElementById('p-desc').value.trim()||null,supplier_price:price,unit:document.getElementById('p-unit').value.trim()||'unit',stock_quantity:parseFloat(document.getElementById('p-stock').value)||0,min_order_quantity:parseFloat(document.getElementById('p-moq').value)||1};
+  let error; if(editingId){({error}=await db.from('products').update(payload).eq('id',editingId));}else{({error}=await db.from('products').insert(payload));}
   btn.disabled=false;btn.textContent=editingId?'Update Product':'Save Product';
   if(error){toast('Error: '+error.message,'e');return;}
-  toast(editingId?'Product updated!':'Product added!','s');
-  closeModal();loadProducts();loadDashboard();
+  toast(editingId?'Product updated':'Product added','s'); closeModal(); loadProducts(); loadDashboard();
 }
-
-async function doLogout(){
-  await db.auth.signOut();location.href='index.html';
-}
-
-function statusBadge(s){
-  const map={pending:'badge-w Pending',accepted:'badge-p Accepted',rejected:'badge-d Rejected',fulfilled:'badge-s Fulfilled'};
-  const v=map[s]||'badge-g '+s;
-  const[cls,...words]=v.split(' ');
-  return `<span class="badge ${cls}">${words.join(' ')}</span>`;
-}
-
-function fmtNum(n){return Number(n).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fmtDate(d){return new Date(d).toLocaleDateString('en',{month:'short',day:'numeric',year:'numeric'});}
-
-function toast(msg,type='s'){
-  const w=document.getElementById('toasts');
-  const t=document.createElement('div');
-  t.className=`toast toast-${type}`;t.textContent=msg;w.appendChild(t);
-  setTimeout(()=>t.classList.add('show'),10);
-  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},3000);
-}
-
+function tbl(heads,rows){return `<table><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;}
 init();
 </script>
 </body>
