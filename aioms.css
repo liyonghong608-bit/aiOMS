@@ -235,3 +235,53 @@ code { font-family: var(--font-mono); font-size: 0.9em; background: var(--glass-
 @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
 .mono { font-family: var(--font-mono); }
 .profit { color: var(--quasar-300); font-weight: 600; }
+
+/* =============================================================
+   活字 — Movable-type press language (cosmic-adapted)
+   Used for: status badges as type-pieces, the press-machine banner,
+   and the full press-matrix view (Builder, v2).
+   ============================================================= */
+
+/* ---------- Press machine banner (cosmetic) ---------- */
+.press-banner {
+  position: relative; overflow: hidden;
+  background: var(--glass-bg-1); border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg); margin-bottom: var(--s-6); padding: var(--s-3) var(--s-5);
+  box-shadow: var(--lift-1);
+}
+.press-banner::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 400px 200px at 15% 50%, rgba(139,92,255,0.14), transparent 70%); pointer-events: none; }
+.press-banner img { display: block; width: 100%; height: auto; max-height: 200px; object-fit: contain; position: relative; }
+
+/* ---------- Type-piece status badges ---------- */
+.tp { 
+  display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 8px;
+  --tp-color: var(--plasma-500); border-radius: var(--r-xs);
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: #fff;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--tp-color) 86%, white 14%), var(--tp-color));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -2px 3px rgba(0,0,0,0.25), 0 1px 3px color-mix(in srgb, var(--tp-color) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tp-color) 60%, white 10%);
+}
+.tp-success { --tp-color: #1ba864; } .tp-warn { --tp-color: #d98a1f; }
+.tp-danger  { --tp-color: #db1f3f; } .tp-info  { --tp-color: #1cb5e0; }
+.tp-plasma  { --tp-color: #6f3cff; } .tp-muted { --tp-color: #475569; }
+
+/* ---------- Full press matrix (Builder view) ---------- */
+.press-wrap { background: var(--glass-bg-2); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-radius: var(--r-lg); box-shadow: var(--lift-1); overflow: auto; padding: var(--s-2); }
+table.press { border-collapse: separate; border-spacing: 6px; width: 100%; }
+table.press th, table.press td { padding: 0; }
+table.press thead th.app-col { text-align: left; padding: 0 var(--s-3); font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--fg-subtle); vertical-align: bottom; min-width: 200px; }
+.cap-header { --cap-color: var(--plasma-500); width: 46px; height: 46px; margin: 0 auto; border-radius: var(--r-sm); display: grid; place-items: center; font-family: var(--font-display); font-size: 22px; font-weight: 600; color: #fff; background: linear-gradient(160deg, color-mix(in srgb, var(--cap-color) 88%, white 12%), var(--cap-color)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.3), 0 2px 6px color-mix(in srgb, var(--cap-color) 45%, transparent), 0 0 16px color-mix(in srgb, var(--cap-color) 30%, transparent); border: 1px solid color-mix(in srgb, var(--cap-color) 60%, white 10%); transition: transform var(--dur-fast) var(--ease-orbit); }
+.cap-header:hover { transform: translateY(-2px); }
+.cap-header.meter-h { background: var(--glass-bg-3); box-shadow: none; border-color: var(--glass-border); }
+.cap-header.meter-h .cap-name { font-family: var(--font-mono); font-size: 16px; color: var(--fg-subtle); }
+td.app-col { display: flex; align-items: center; gap: var(--s-3); padding: 0 var(--s-3); font-size: var(--fs-14); font-weight: 600; color: var(--fg); cursor: pointer; white-space: nowrap; border-radius: var(--r-sm); transition: background var(--dur-fast) var(--ease-orbit); height: 46px; }
+td.app-col:hover { background: var(--glass-bg-2); }
+.app-chip { --app-color: var(--accretion-500); width: 30px; height: 30px; border-radius: var(--r-xs); flex-shrink: 0; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: #fff; background: linear-gradient(160deg, color-mix(in srgb, var(--app-color) 85%, white 15%), var(--app-color)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 5px color-mix(in srgb, var(--app-color) 40%, transparent); }
+.cell { --cap-color: var(--plasma-500); width: 46px; height: 46px; margin: 0 auto; border-radius: var(--r-pill); display: grid; place-items: center; font-family: var(--font-mono); font-size: 15px; font-weight: 600; transition: all var(--dur-fast) var(--ease-orbit); cursor: pointer; }
+.cell.on { color: #fff; background: linear-gradient(160deg, color-mix(in srgb, var(--cap-color) 86%, white 14%), var(--cap-color)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 3px rgba(0,0,0,0.25), 0 2px 5px color-mix(in srgb, var(--cap-color) 45%, transparent); }
+.cell.on:hover { transform: scale(1.12); }
+.cell.off { color: var(--fg-faint); background: transparent; border: 1.5px dashed var(--stellar-600); }
+.cell.off:hover { border-color: var(--plasma-500); color: var(--plasma-300); border-style: solid; background: rgba(139,92,255,0.08); }
+.meter { position: relative; height: 16px; width: 90px; margin: 0 auto; background: var(--glass-bg-1); border: 1px solid var(--glass-border); border-radius: var(--r-pill); overflow: hidden; }
+.meter-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--grad-accretion); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3); transition: width var(--dur-slow) var(--ease-orbit); }
+.meter-num { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: #fff; mix-blend-mode: difference; }

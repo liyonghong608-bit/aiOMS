@@ -16,13 +16,14 @@ function toast(msg,type='s'){
 async function doLogout(){ await db.auth.signOut(); location.href='index.html'; }
 
 function statusBadge(s){
+  // Type-piece glyph + label, in the 活字 movable-type language
   const map={
-    draft:['badge-muted','Draft'], submitted:['badge-warn','Submitted'], processing:['badge-plasma','Processing'],
-    completed:['badge-success','Completed'], cancelled:['badge-danger','Cancelled'],
-    pending:['badge-warn','Pending'], accepted:['badge-plasma','Accepted'], rejected:['badge-danger','Rejected'], fulfilled:['badge-success','Fulfilled'],
+    draft:['tp-muted','稿','Draft'], submitted:['tp-warn','送','Submitted'], processing:['tp-plasma','理','Processing'],
+    completed:['tp-success','成','Completed'], cancelled:['tp-danger','废','Cancelled'],
+    pending:['tp-warn','待','Pending'], accepted:['tp-plasma','纳','Accepted'], rejected:['tp-danger','拒','Rejected'], fulfilled:['tp-success','达','Fulfilled'],
   };
-  const [cls,label]=map[s]||['badge-muted',s];
-  return `<span class="badge ${cls}">${label}</span>`;
+  const [cls,glyph,label]=map[s]||['tp-muted','·',s];
+  return `<span style="display:inline-flex;align-items:center;gap:7px"><span class="tp ${cls}">${glyph}</span><span style="font-size:12px;color:var(--fg-muted)">${label}</span></span>`;
 }
 function roleBadge(r){
   const map={admin:['badge-warn','⚡ Admin'],supplier:['badge-info','Supplier'],buyer:['badge-success','Buyer']};
