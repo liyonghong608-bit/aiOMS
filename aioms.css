@@ -82,25 +82,89 @@ body {
 
 .sb-nav { flex: 1; padding: var(--s-3) var(--s-2); overflow-y: auto; }
 .nav-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--fg-faint); padding: var(--s-3) var(--s-2) var(--s-1); }
+/* Gradient pill sidebar items — keeps existing layout, restyles graphics. */
 .nav-item {
+  --gradient-from: #8b5cff;
+  --gradient-to: #ff3d9a;
+  position: relative;
+  isolation: isolate;
   display: flex; align-items: center; gap: var(--s-3);
-  padding: 10px var(--s-3); border-radius: var(--r-sm); cursor: pointer;
+  padding: 11px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
   color: var(--fg-subtle); font-size: var(--fs-13); font-weight: 500;
-  transition: all var(--dur-fast) var(--ease-orbit); user-select: none; margin-bottom: 2px;
-  border: 1px solid transparent;
+  transition: color 400ms var(--ease-orbit), transform 400ms var(--ease-orbit);
+  user-select: none;
+  margin-bottom: 6px;
+  overflow: visible;
 }
-.nav-item:hover { background: var(--glass-bg-2); color: var(--fg); }
+.nav-item::before,
+.nav-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(45deg, var(--gradient-from), var(--gradient-to));
+  opacity: 0;
+  transition: opacity 400ms var(--ease-orbit);
+  pointer-events: none;
+}
+.nav-item::before { z-index: -1; }
+.nav-item::after  { top: 6px; filter: blur(14px); opacity: 0; z-index: -2; }
+.nav-item:hover { color: #fff; }
+.nav-item:hover::before { opacity: 0.55; }
+.nav-item:hover::after  { opacity: 0.35; }
 .nav-item.on {
-  background: linear-gradient(135deg, rgba(139,92,255,0.22), rgba(255,61,154,0.12));
-  color: var(--fg); font-weight: 600; border-color: rgba(139,92,255,0.4);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  color: #fff; font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
 }
+.nav-item.on::before { opacity: 1; }
+.nav-item.on::after  { opacity: 0.5; }
+
+/* Per-item gradient palette (matches the gradient-menu component) */
+#n-browse,    #n-dashboard           { --gradient-from: #a955ff; --gradient-to: #ea51ff; }
+#n-cart,      #n-products            { --gradient-from: #56CCF2; --gradient-to: #2F80ED; }
+#n-orders                            { --gradient-from: #FF9966; --gradient-to: #FF5E62; }
+#n-users                             { --gradient-from: #80FF72; --gradient-to: #7EE8FA; }
+#n-margins                           { --gradient-from: #ffa9c6; --gradient-to: #f434e2; }
+
 .nav-ic { font-size: 16px; width: 20px; text-align: center; }
-.nav-badge { margin-left: auto; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: var(--r-pill); }
+.nav-badge {
+  margin-left: auto; background: rgba(255,255,255,0.22); color: #fff;
+  font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: var(--r-pill);
+  backdrop-filter: blur(4px);
+}
 
 .sb-foot { padding: var(--s-3) var(--s-2); border-top: 1px solid var(--divider-glass); }
-.logout { display: flex; align-items: center; gap: var(--s-3); padding: 10px var(--s-3); border-radius: var(--r-sm); cursor: pointer; color: var(--fg-faint); font-size: var(--fs-13); font-weight: 500; transition: all var(--dur-fast) var(--ease-orbit); }
-.logout:hover { background: rgba(255,79,107,0.14); color: var(--supernova-300); }
+.logout {
+  --gradient-from: #ff4f6b;
+  --gradient-to: #ff8a4f;
+  position: relative;
+  isolation: isolate;
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: 11px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  color: var(--fg-faint); font-size: var(--fs-13); font-weight: 500;
+  transition: color 400ms var(--ease-orbit);
+  overflow: visible;
+}
+.logout::before,
+.logout::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(45deg, var(--gradient-from), var(--gradient-to));
+  opacity: 0;
+  transition: opacity 400ms var(--ease-orbit);
+  pointer-events: none;
+}
+.logout::before { z-index: -1; }
+.logout::after  { top: 6px; filter: blur(14px); opacity: 0; z-index: -2; }
+.logout:hover { color: #fff; }
+.logout:hover::before { opacity: 1; }
+.logout:hover::after  { opacity: 0.5; }
 
 /* ---------- Main column ---------- */
 .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
@@ -251,7 +315,6 @@ code { font-family: var(--font-mono); font-size: 0.9em; background: var(--glass-
 }
 .press-banner::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 400px 200px at 15% 50%, rgba(139,92,255,0.14), transparent 70%); pointer-events: none; }
 .press-banner img { display: block; width: 100%; height: auto; max-height: 200px; object-fit: contain; position: relative; }
-.press-banner svg { display: block; width: 100%; height: auto; max-height: 200px; position: relative; }
 
 /* ---------- Type-piece status badges ---------- */
 .tp { 
