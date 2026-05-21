@@ -72,7 +72,7 @@
         <div class="products-grid" id="products-grid"><div class="loading"><div class="spin"></div></div></div>
       </div>
       <div class="page" id="p-cart"><div id="cart-view"></div></div>
-      <div class="page" id="p-orders"><div class="panel"><div class="panel-head"><h3>My Purchase Orders</h3></div><div id="orders-table"><div class="loading"><div class="spin"></div></div></div></div></div>
+      <div class="page" id="p-orders"><div id="orders-table"><div class="loading"><div class="spin"></div></div></div></div>
     </div>
   </div>
 </div>
@@ -148,10 +148,21 @@ async function submitPO(){
   toast('Order placed successfully!','s'); nav('orders');
 }
 async function loadOrders(){
-  const {data}=await db.from('purchase_orders').select('*,order_items(id)').eq('buyer_id',USER.id).order('created_at',{ascending:false});
+  const {data}=await db.from('purchase_orders').select('*,order_items(id,status,quantity,deadline_at,accepted_at,fulfilled_at,products(name,unit))').eq('buyer_id',USER.id).order('created_at',{ascending:false});
   const el=document.getElementById('orders-table');
   if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-ic">▤</div><p>No orders yet. Place your first order!</p></div>';return;}
-  el.innerHTML=`<table><thead><tr><th>Order ID</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>${data.map(o=>`<tr><td><code>${o.id.slice(0,8)}</code></td><td>${o.order_items?.length||0} items</td><td><strong>$${fmtNum(o.total_buyer_price)}</strong></td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.created_at)}</td></tr>`).join('')}</tbody></table>`;
+  el.innerHTML=data.map(o=>{
+    const items=o.order_items||[];
+    const rows=items.map(it=>`<tr><td style="padding-left:var(--s-6)"><span style="color:var(--fg-subtle)">↳</span> ${it.products?.name||'—'} <span style="color:var(--fg-faint)">×${it.quantity}</span></td><td>${statusBadge(it.status)}</td><td>${timerHtml(it)}</td></tr>`).join('');
+    return `<div class="panel" style="margin-bottom:var(--s-3)">
+      <div class="panel-head" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <h3 style="font-size:var(--fs-14)"><code>${o.id.slice(0,8)}</code> · ${items.length} items · <strong>$${fmtNum(o.total_buyer_price)}</strong></h3>
+        <div style="display:flex;align-items:center;gap:12px">${statusBadge(o.status)}<span style="color:var(--fg-faint);font-size:12px">${fmtDate(o.created_at)}</span></div>
+      </div>
+      <div style="display:none"><table><thead><tr><th>Item</th><th>Status</th><th>Delivery Countdown</th></tr></thead><tbody>${rows||'<tr><td colspan="3" style="color:var(--fg-faint)">No items</td></tr>'}</tbody></table></div>
+    </div>`;
+  }).join('');
+  tickTimers();
 }
 function nav(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));

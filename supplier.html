@@ -64,6 +64,24 @@
   </div>
 </div>
 
+<div class="overlay" id="accept-modal" onclick="if(event.target===this)closeAccept()">
+  <div class="modal">
+    <h2>Accept Order</h2>
+    <div class="modal-sub">Commit to a delivery timeframe. A live countdown starts immediately and is visible to the buyer.</div>
+    <div class="fg">
+      <label>Delivery timeframe (hours)</label>
+      <input id="a-hours" type="number" min="1" step="1" placeholder="e.g. 48">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--s-2)">
+      <button class="btn btn-sm" onclick="setPreset(24)">1 day</button>
+      <button class="btn btn-sm" onclick="setPreset(48)">2 days</button>
+      <button class="btn btn-sm" onclick="setPreset(72)">3 days</button>
+      <button class="btn btn-sm" onclick="setPreset(168)">1 week</button>
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeAccept()">Cancel</button><button class="btn btn-success" id="accept-btn" onclick="confirmAccept()">Accept &amp; Start Clock</button></div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toasts"></div>
 
 <script src="shared.js"></script>
@@ -124,10 +142,27 @@ async function loadOrders(){
   const {data}=await db.from('order_items').select('*,products(name,unit),purchase_orders(profiles!purchase_orders_buyer_id_fkey(full_name,company_name))').eq('supplier_id',USER.id).order('created_at',{ascending:false});
   const el=document.getElementById('orders-table');
   if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-ic">▤</div><p>No incoming orders yet</p></div>';return;}
-  el.innerHTML=tbl(['Product','Buyer','Qty','Revenue','Status','Date','Actions'],data.map(i=>`<tr>
+  el.innerHTML=tbl(['Product','Buyer','Qty','Revenue','Status','Deadline','Date','Actions'],data.map(i=>`<tr>
     <td><strong>${i.products?.name||'—'}</strong></td><td>${i.purchase_orders?.profiles?.company_name||i.purchase_orders?.profiles?.full_name||'—'}</td>
-    <td>${i.quantity} ${i.products?.unit||''}</td><td><strong>$${fmtNum(i.supplier_price*i.quantity)}</strong></td><td>${statusBadge(i.status)}</td><td>${fmtDate(i.created_at)}</td>
-    <td>${i.status==='pending'?`<button class="btn btn-sm btn-success" onclick="updateItem('${i.id}','accepted')">Accept</button> <button class="btn btn-sm btn-danger" onclick="updateItem('${i.id}','rejected')">Reject</button>`:i.status==='accepted'?`<button class="btn btn-sm btn-primary" onclick="updateItem('${i.id}','fulfilled')">Fulfill</button>`:'—'}</td></tr>`).join(''));
+    <td>${i.quantity} ${i.products?.unit||''}</td><td><strong>$${fmtNum(i.supplier_price*i.quantity)}</strong></td><td>${statusBadge(i.status)}</td>
+    <td>${timerHtml(i)}</td><td>${fmtDate(i.created_at)}</td>
+    <td>${i.status==='pending'?`<button class="btn btn-sm btn-success" onclick="openAccept('${i.id}')">Accept</button> <button class="btn btn-sm btn-danger" onclick="updateItem('${i.id}','rejected')">Reject</button>`:i.status==='accepted'?`<button class="btn btn-sm btn-primary" onclick="updateItem('${i.id}','fulfilled')">Mark Delivered</button>`:'—'}</td></tr>`).join(''));
+  tickTimers();
+}
+let acceptId=null;
+function openAccept(id){ acceptId=id; document.getElementById('accept-modal').classList.add('show'); }
+function closeAccept(){ document.getElementById('accept-modal').classList.remove('show'); }
+function setPreset(hours){ document.getElementById('a-hours').value=hours; }
+async function confirmAccept(){
+  const btn=document.getElementById('accept-btn');
+  const hours=parseFloat(document.getElementById('a-hours').value);
+  if(isNaN(hours)||hours<=0){toast('Enter a valid delivery timeframe','e');return;}
+  btn.disabled=true;btn.textContent='Accepting…';
+  const now=new Date().toISOString();
+  const {error}=await db.from('order_items').update({status:'accepted',delivery_hours:hours,accepted_at:now}).eq('id',acceptId);
+  btn.disabled=false;btn.textContent='Accept & Start Clock';
+  if(error){toast('Failed: '+error.message,'e');return;}
+  toast('Order accepted — clock started','s'); closeAccept(); loadOrders(); loadDashboard();
 }
 async function updateItem(id,status){ const {error}=await db.from('order_items').update({status}).eq('id',id); if(error){toast('Failed to update','e');return;} toast('Order updated','s'); loadOrders(); loadDashboard(); }
 async function toggleProduct(id,active){ const {error}=await db.from('products').update({is_active:active}).eq('id',id); if(error){toast('Failed','e');return;} toast(active?'Activated':'Disabled','s'); loadProducts(); }

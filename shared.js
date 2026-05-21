@@ -15,6 +15,41 @@ function toast(msg,type='s'){
 }
 async function doLogout(){ await db.auth.signOut(); location.href='index.html'; }
 
+/* ---- v2 completion timer ----
+   Renders a live countdown chip. Pass the order_item row.
+   Color shifts fresh → soon (<25% left) → overdue. */
+function timerHtml(item){
+  if(item.status==='fulfilled'){
+    return `<span class="timer done"><span class="timer-dot"></span>Delivered</span>`;
+  }
+  if(item.status!=='accepted'||!item.deadline_at){
+    return `<span style="color:var(--fg-faint);font-size:12px">—</span>`;
+  }
+  return `<span class="timer" data-deadline="${item.deadline_at}" data-accepted="${item.accepted_at||''}"><span class="timer-dot"></span><span class="timer-txt">…</span></span>`;
+}
+function fmtRemaining(ms){
+  const past=ms<0; ms=Math.abs(ms);
+  const d=Math.floor(ms/86400000), h=Math.floor(ms%86400000/3600000), m=Math.floor(ms%3600000/60000), s=Math.floor(ms%60000/1000);
+  let t; if(d>0)t=`${d}d ${h}h ${m}m`; else if(h>0)t=`${h}h ${m}m ${s}s`; else t=`${m}m ${s}s`;
+  return (past?'+':'')+t;
+}
+function tickTimers(){
+  document.querySelectorAll('.timer[data-deadline]').forEach(el=>{
+    const deadline=new Date(el.dataset.deadline).getTime();
+    const accepted=el.dataset.accepted?new Date(el.dataset.accepted).getTime():deadline-86400000;
+    const now=Date.now(), rem=deadline-now, total=Math.max(deadline-accepted,1);
+    const frac=rem/total;
+    el.classList.remove('fresh','soon','overdue');
+    let label;
+    if(rem<0){ el.classList.add('overdue'); label='Overdue '+fmtRemaining(rem); }
+    else if(frac<=0.25){ el.classList.add('soon'); label=fmtRemaining(rem)+' left'; }
+    else { el.classList.add('fresh'); label=fmtRemaining(rem)+' left'; }
+    const txt=el.querySelector('.timer-txt'); if(txt)txt.textContent=label;
+  });
+}
+setInterval(tickTimers,1000);
+document.addEventListener('DOMContentLoaded',tickTimers);
+
 function statusBadge(s){
   // Type-piece glyph + label, in the 活字 movable-type language
   const map={
